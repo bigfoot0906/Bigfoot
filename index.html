@@ -21,6 +21,7 @@ small{color:var(--m);display:block}.it .x{width:auto;background:none;color:var(-
 .late{color:var(--r)}.soon{color:var(--o)}.al{border-left:5px solid var(--r)}
 img.ph{width:48px;height:48px;object-fit:cover;border-radius:8px}
 </style></head><body><main id="app"></main><nav id="nav"></nav>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script><script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script><script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
 <script>
 const $=s=>document.querySelector(s);
 let db;try{db=JSON.parse(localStorage.getItem('jeep'))}catch(e){}
@@ -59,8 +60,8 @@ function vPlein(){const f=fuelStats(),cs=f.filter(i=>i.c).map(i=>i.c),avg=cs.len
  <div class=card><b>Derniers pleins</b>${list('f',i=>`${fd(i.date)} · ${fx(i.l,2)} L · ${eur(i.p)}<small>${fx(i.p/i.l,3)} €/L${i.km?' · '+i.km+' km':''}${i.c?' · '+fx(i.c)+' L/100':''}</small>`)}</div>`}
 function addF(){const l=n($('#l').value),p=n($('#p').value),k=parseInt($('#k').value);
  if(!(l>0&&p>0))return alert('Entrez les litres et le prix.');
- const i={id:Date.now(),t:'f',date:today(),l,p};if(k>0){i.km=k;if(k>db.km)db.km=k}
- db.items.push(i);save();render();navigator.vibrate&&navigator.vibrate(60)}
+ const i={id:Date.now(),t:'f',date:today(),l,p};if(k>0){i.km=k;if(k>db.km)setKm(k)}
+ put(i);navigator.vibrate&&navigator.vibrate(60)}
 
 function vEnt(){return `<div class=card><b>Ajouter un entretien</b>
 <input id=nm list=sg placeholder="Quoi ? (Vidange, Pneus…)"><datalist id=sg><option>Vidange<option>Filtres<option>Pneus<option>Freins<option>Courroie<option>Batterie<option>Contrôle technique<option>Réparation</datalist>
@@ -68,9 +69,8 @@ function vEnt(){return `<div class=card><b>Ajouter un entretien</b>
 <label>Prochaine échéance (facultatif)</label><div class=row><input id=nd type=date><input id=nk inputmode=numeric placeholder="à tel km"></div>
 <label>Coût (€)</label><input id=p inputmode=decimal>${photoField()}<button onclick=addM()>Enregistrer</button></div>
 <div class=card><b>Historique</b>${list('m',i=>`${esc(i.name)}<small>${fd(i.date)}${i.km?' · '+i.km+' km':''}${i.p?' · '+eur(i.p):''}${i.nd?' · prochain le '+fd(i.nd):''}${i.nk?' · prochain à '+i.nk+' km':''}</small>`)}</div>`}
-function addM(){const name=$('#nm').value.trim();if(!name)return alert('Indiquez ce qui a été fait.');const k=parseInt($('#k').value)||0;
- db.items.push({id:Date.now(),t:'m',name,date:$('#dt').value||today(),km:k,nd:$('#nd').value,nk:parseInt($('#nk').value)||0,p:n($('#p').value)||0,ph:tmpPhoto});
- if(k>db.km)db.km=k;tmpPhoto='';save();render()}
+function addM(){const name=$('#nm').value.trim();if(!name)return alert('Indiquez ce qui a été fait.');const k=parseInt($('#k').value)||0;if(k>db.km)setKm(k);
+ put({id:Date.now(),t:'m',name,date:$('#dt').value||today(),km:k,nd:$('#nd').value,nk:parseInt($('#nk').value)||0,p:n($('#p').value)||0,ph:tmpPhoto});tmpPhoto=''}
 
 function vDoc(){return `<div class=card><b>Ajouter un papier, un équipement ou une facture</b>
 <select id=cat><option value="Papier">Papier (assurance, carte grise…)</option><option value="Équipement">Équipement acheté</option><option value="Facture">Facture / ticket</option></select>
@@ -78,21 +78,39 @@ function vDoc(){return `<div class=card><b>Ajouter un papier, un équipement ou 
 <label>Prix (€)</label><input id=p inputmode=decimal>${photoField()}<button onclick=addD()>Enregistrer</button></div>
 <div class=card><b>Mes documents</b>${list('d',i=>`${esc(i.name)}<small>${esc(i.cat)} · ${fd(i.date)}${i.p?' · '+eur(i.p):''}${i.exp?' · expire le '+fd(i.exp):''}</small>`)}</div>`}
 function addD(){const name=$('#nm').value.trim();if(!name)return alert('Indiquez un nom.');
- db.items.push({id:Date.now(),t:'d',cat:$('#cat').value,name,date:$('#dt').value||today(),exp:$('#ex').value,p:n($('#p').value)||0,ph:tmpPhoto});tmpPhoto='';save();render()}
+ put({id:Date.now(),t:'d',cat:$('#cat').value,name,date:$('#dt').value||today(),exp:$('#ex').value,p:n($('#p').value)||0,ph:tmpPhoto});tmpPhoto=''}
 
-function vSet(){return `<div class=card><b>Kilométrage actuel</b><input id=k inputmode=numeric value="${db.km}"><button onclick="db.km=parseInt($('#k').value)||db.km;save();render()">Mettre à jour</button></div>
+function vSet(){return syncCard()+`<div class=card><b>Kilométrage actuel</b><input id=k inputmode=numeric value="${db.km}"><button onclick="setKm(parseInt($('#k').value)||db.km);render()">Mettre à jour</button></div>
 <div class=card><b>Sauvegarde</b><small>Dernière : ${db.bk?fd(new Date(db.bk).toISOString().slice(0,10)):'jamais'}</small>
 <button onclick=exp()>Sauvegarder mes données</button><label>Restaurer depuis un fichier de sauvegarde</label><input type=file accept=".json" onchange=imp(this)></div>`}
 function exp(){db.bk=Date.now();save();const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([JSON.stringify(db)],{type:'application/json'}));a.download='jeep-sauvegarde-'+today()+'.json';a.click();render()}
 function imp(inp){const f=inp.files[0];if(!f)return;const r=new FileReader();r.onload=()=>{try{const d=JSON.parse(r.result);if(!Array.isArray(d.items))throw 0;
- if(confirm('Remplacer les données actuelles par cette sauvegarde ?')){db=d;save();render()}}catch(e){alert('Fichier non valide.')}};r.readAsText(f)}
+ if(confirm('Ajouter les données de cette sauvegarde ?')){db=d;save();if(col){d.items.forEach(i=>col.doc(String(i.id)).set(i));setKm(d.km||db.km)}render()}}catch(e){alert('Fichier non valide.')}};r.readAsText(f)}
 
-function del(id){if(confirm('Supprimer cet élément ?')){db.items=db.items.filter(i=>i.id!=id);save();render()}}
+function del(id){if(confirm('Supprimer cet élément ?')){rm(id)}}
 function show(id){const i=db.items.find(x=>x.id==id),o=document.createElement('div');o.style='position:fixed;inset:0;background:#000d;display:flex;align-items:center;justify-content:center;z-index:9';o.innerHTML=`<img src="${i.ph}" style="max-width:100%;max-height:100%">`;o.onclick=()=>o.remove();document.body.append(o)}
 
 const T=[['plein','⛽','Plein'],['ent','🔧','Entretien'],['doc','📄','Papiers'],['set','⚙️','Réglages']];
 function render(){const V={plein:vPlein,ent:vEnt,doc:vDoc,set:vSet},a=alerts();
- $('#app').innerHTML=(a.length?`<div class="card al">${a.map(x=>`<div class="${x[0]?'late':'soon'}">⚠ ${x[1]}</div>`).join('')}</div>`:'')+V[tab]();
+ $('#app').innerHTML=syncBar()+(a.length?`<div class="card al">${a.map(x=>`<div class="${x[0]?'late':'soon'}">⚠ ${x[1]}</div>`).join('')}</div>`:'')+V[tab]();
  $('#nav').innerHTML=T.map(t=>`<button class="${t[0]==tab?'on':''}" onclick="tab='${t[0]}';tmpPhoto='';render()">${t[1]}<br>${t[2]}</button>`).join('')}
+const cfg={apiKey:"AIzaSyBFM-UBOw1St6uczsDYX2IKbhRTU_AHhCc",authDomain:"bigfoot-jeep-jku.firebaseapp.com",projectId:"bigfoot-jeep-jku",storageBucket:"bigfoot-jeep-jku.firebasestorage.app",messagingSenderId:"398828328349",appId:"1:398828328349:web:b6d17f012a2f0c1278cb74"};
+let fs,col,user,st='',defer=0,unsub;
+const setKm=k=>{db.km=k;save();col&&fs.collection('meta').doc('cfg').set({km:k}).catch(()=>{})};
+function put(x){db.items=db.items.filter(i=>i.id!=x.id);db.items.push(x);save();col&&col.doc(String(x.id)).set(x).catch(()=>{});render()}
+function rm(id){db.items=db.items.filter(i=>i.id!=id);save();col&&col.doc(String(id)).delete().catch(()=>{});render()}
+function draw(){const e=document.activeElement;if(e&&e.matches('input,select'))defer=1;else render()}
+document.addEventListener('focusout',()=>{if(defer)setTimeout(()=>{const e=document.activeElement;if(!(e&&e.matches('input,select'))){defer=0;render()}},300)});
+addEventListener('online',render);addEventListener('offline',render);
+const syncBar=()=>user?`<small style="text-align:center">☁ ${navigator.onLine?(st||'…'):'Hors ligne'}</small>`:`<div class="card al"><b>Non synchronisé.</b> Connectez-vous dans Réglages.</div>`;
+function syncCard(){return user?`<div class=card><b>Synchronisation</b><small>Connecté : ${esc(user.email)}</small><button onclick="firebase.auth().signOut()">Se déconnecter</button></div>`:`<div class=card><b>Connexion (synchronisation)</b><input id=em type=email placeholder="Adresse e-mail" autocomplete=username><input id=pw type=password placeholder="Mot de passe" autocomplete=current-password><button onclick=login()>Se connecter</button></div>`}
+function login(){firebase.auth().signInWithEmailAndPassword($('#em').value.trim(),$('#pw').value).then(()=>{tab='plein';render()}).catch(e=>alert(e.code=='auth/network-request-failed'?'Pas de réseau : la première connexion en demande.':'Adresse ou mot de passe incorrect.'))}
+try{firebase.initializeApp(cfg);fs=firebase.firestore();fs.enablePersistence({synchronizeTabs:true}).catch(()=>{});
+firebase.auth().onAuthStateChanged(u=>{user=u;unsub&&unsub();unsub=0;col=null;
+ if(u){col=fs.collection('items');
+  if(!localStorage.getItem('jeepMig')){db.items.forEach(i=>col.doc(String(i.id)).set(i).catch(()=>{}));if(db.km!=217414)fs.collection('meta').doc('cfg').set({km:db.km}).catch(()=>{});localStorage.setItem('jeepMig','1')}
+  unsub=col.onSnapshot(q=>{db.items=q.docs.map(d=>d.data());save();st=q.metadata.hasPendingWrites?"Envoi en attente":"Synchronisé";draw()},()=>{});
+  fs.collection('meta').doc('cfg').onSnapshot(d=>{if(d.exists&&d.data().km){db.km=d.data().km;save();draw()}},()=>{})}
+ render()})}catch(e){}
 render();if('serviceWorker'in navigator)navigator.serviceWorker.register('sw.js');
 </script></body></html>
