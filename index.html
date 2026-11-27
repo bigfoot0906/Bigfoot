@@ -1,7 +1,7 @@
 <!doctype html><html lang="fr"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <meta name="theme-color" content="#2f3a24">
-<link rel="manifest" href="manifest.json"><link rel="apple-touch-icon" href="icon-192.png">
+<link rel="manifest" href="manifest.json"><link rel="apple-touch-icon" href="icon-180.png"><link rel="icon" href="icon-192.png">
 <title>Bigfoot</title>
 <style>
 :root{--bg:#ece6d6;--c:#fbf8f0;--t:#232618;--m:#6c6a58;--a:#3b4a2f;--ab:#f4f1ea;--hi:#d97a14;--r:#b3261e;--o:#b06400;--l:#d8d0bb;--hd:#2f3a24;--sh:0 2px 0 #0001,0 6px 14px #3b2f1a14}
@@ -32,6 +32,8 @@ nav .on{background:#ffffff1c;color:#ffb257}
 small{color:var(--m);display:block}.it .x{width:auto;background:none;color:var(--m);padding:4px 10px;margin:0;box-shadow:none;font-weight:400}
 .late{color:var(--r);font-weight:600}.soon{color:var(--o);font-weight:600}.al{border-left:6px solid var(--r)}
 img.ph{width:52px;height:52px;object-fit:cover;border-radius:10px}
+#upd{position:fixed;left:12px;right:12px;bottom:calc(92px + env(safe-area-inset-bottom));z-index:6;display:flex;align-items:center;justify-content:space-between;gap:12px;background:var(--hi);color:#1d1606;font-weight:700;padding:10px 12px 10px 16px;border-radius:16px;box-shadow:0 6px 18px #0006}
+#upd button{width:auto;margin:0;padding:10px 14px;background:#1d1606;color:#ffd9a0;box-shadow:none}
 </style></head><body><header><img src="logo.png" alt="Jeep"><div class="odo"><span id="km">0</span><small>km</small></div></header><main id="app"></main><nav id="nav"></nav>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script><script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script><script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
 <script>
@@ -92,7 +94,7 @@ function vDoc(){return `<div class=card><b>Ajouter un papier, un équipement ou 
 function addD(){const name=$('#nm').value.trim();if(!name)return alert('Indiquez un nom.');
  put({id:Date.now(),t:'d',cat:$('#cat').value,name,date:$('#dt').value||today(),exp:$('#ex').value,p:n($('#p').value)||0,ph:tmpPhoto});tmpPhoto=''}
 
-function vSet(){return syncCard()+`<div class=card><b>Kilométrage actuel</b><input id=k inputmode=numeric value="${db.km}"><button onclick="setKm(parseInt($('#k').value)||db.km);render()">Mettre à jour</button></div>
+function vSet(){return syncCard()+`<div class=card><b>Version de l'application</b><small id=ver>Version ${appV||'…'}</small><button onclick=chk()>Rechercher une mise à jour</button><small>${upMsg}</small></div><div class=card><b>Kilométrage actuel</b><input id=k inputmode=numeric value="${db.km}"><button onclick="setKm(parseInt($('#k').value)||db.km);render()">Mettre à jour</button></div>
 <div class=card><b>Sauvegarde</b><small>Dernière : ${db.bk?fd(new Date(db.bk).toISOString().slice(0,10)):'jamais'}</small>
 <button onclick=exp()>Sauvegarder mes données</button><label>Restaurer depuis un fichier de sauvegarde</label><input type=file accept=".json" onchange=imp(this)></div>`}
 function exp(){db.bk=Date.now();save();const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([JSON.stringify(db)],{type:'application/json'}));a.download='jeep-sauvegarde-'+today()+'.json';a.click();render()}
@@ -126,5 +128,18 @@ firebase.auth().onAuthStateChanged(u=>{user=u;unsub&&unsub();unsub=0;col=null;
   unsub=col.onSnapshot(q=>{db.items=q.docs.map(d=>d.data());save();st=q.metadata.hasPendingWrites?"Envoi en attente":"Synchronisé";draw()},()=>{});
   fs.collection('meta').doc('cfg').onSnapshot(d=>{if(d.exists&&d.data().km){db.km=d.data().km;save();draw()}},()=>{})}
  render()})}catch(e){}
-render();if('serviceWorker'in navigator)navigator.serviceWorker.register('sw.js');
+let appV='',upMsg='',reg;
+function showUp(){if($('#upd'))return;const d=document.createElement('div');d.id='upd';d.innerHTML='Nouvelle version prête <button onclick="location.reload()">Mettre à jour</button>';document.body.append(d)}
+function askV(){const c=navigator.serviceWorker.controller;if(!c)return;const ch=new MessageChannel();ch.port1.onmessage=e=>{appV=e.data;const v=$('#ver');if(v)v.textContent='Version '+appV};c.postMessage('v',[ch.port2])}
+async function chk(){if(!reg){upMsg="Mises à jour indisponibles ici.";return render()}
+ upMsg='Recherche en cours…';render();
+ try{await reg.update()}catch(e){upMsg='Impossible de vérifier : pas de réseau ?';return render()}
+ const w=reg.installing||reg.waiting;
+ if(w&&w.state!='activated'){upMsg='Téléchargement de la nouvelle version…';render();await new Promise(ok=>{const t=setTimeout(ok,8000);w.addEventListener('statechange',()=>{if(w.state=='activated'){clearTimeout(t);ok()}})})}
+ upMsg=$('#upd')?'Nouvelle version prête : appuyez sur « Mettre à jour ».':'Vous avez déjà la dernière version.';render()}
+render();
+if('serviceWorker'in navigator){const had=navigator.serviceWorker.controller;
+ navigator.serviceWorker.register('sw.js',{updateViaCache:'none'}).then(r=>{reg=r;askV();r.update().catch(()=>{});setInterval(()=>r.update().catch(()=>{}),18e5)}).catch(()=>{});
+ navigator.serviceWorker.addEventListener('controllerchange',()=>{had?showUp():askV()});
+ document.addEventListener('visibilitychange',()=>{if(!document.hidden&&reg)reg.update().catch(()=>{})})}
 </script></body></html>
