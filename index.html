@@ -51,6 +51,10 @@ label.ck{display:flex;align-items:center;gap:12px;flex:1;min-width:0;padding:6px
 .st{background:var(--c);border:1px solid var(--l);border-radius:16px;padding:12px;box-shadow:var(--sh)}.st b{display:block;font-size:21px}.st span{font-size:13px;color:var(--m)}
 .lg{display:flex;gap:12px;flex-wrap:wrap;font-size:13px;color:var(--m);margin-top:8px}.lg i{display:inline-block;width:10px;height:10px;border-radius:3px;margin-right:5px}
 .ln{width:100%;height:auto}.ln polyline{fill:none;stroke:var(--hi);stroke-width:2.5;stroke-linejoin:round}.ln circle{fill:var(--hi)}.ln line{stroke:var(--m);stroke-dasharray:4 4;opacity:.6}.ln text{fill:var(--m);font-size:11px}
+.enc{display:flex;justify-content:space-between;align-items:center;gap:10px;border-left:6px solid var(--hi);cursor:pointer}
+.tot{font-size:38px;font-weight:800;margin-top:6px}
+.kv{display:flex;justify-content:space-between;gap:10px;padding:7px 0;border-bottom:1px solid var(--l);font-size:15.5px}
+.lk{color:var(--a);cursor:pointer}
 #upd{position:fixed;left:12px;right:12px;bottom:calc(92px + env(safe-area-inset-bottom));z-index:6;display:flex;align-items:center;justify-content:space-between;gap:12px;background:var(--hi);color:#1d1606;font-weight:700;padding:10px 12px 10px 16px;border-radius:16px;box-shadow:0 6px 18px #0006}
 #upd button{width:auto;margin:0;padding:10px 14px;background:#1d1606;color:#ffd9a0;box-shadow:none}
 #carnet{position:fixed;inset:0;z-index:20;background:#fff;color:#000;overflow:auto;padding:16px;font-size:14px}
@@ -83,8 +87,9 @@ const nf=v=>String(v).replace(/\B(?=(\d{3})+(?!\d))/g,'\u202f');
 const days=d=>Math.round((new Date(d)-new Date(today()))/864e5);
 const esc=s=>String(s==null?'':s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
 const norm=s=>String(s==null?'':s).normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase();
+let sel=0,xcat='Repas';
 const sortie=id=>db.items.find(x=>x.t=='s'&&x.id==id);
-function sCost(s){const p=db.items.filter(i=>i.t=='f'&&i.so==s.id),fc=p.reduce((a,i)=>a+i.p,0),l=p.reduce((a,i)=>a+i.l,0),af=s.af||0;return{n:p.length,fc,l,af,tot:fc+af}}
+function sCost(s){const p=db.items.filter(i=>i.t=='f'&&i.so==s.id),fc=p.reduce((a,i)=>a+i.p,0),l=p.reduce((a,i)=>a+i.l,0),af=s.af||0,x=db.items.filter(i=>i.t=='x'&&i.so==s.id),xc=x.reduce((a,i)=>a+i.p,0);return{n:p.length,fc,l,af,xc,xn:x.length,ot:af+xc,tot:fc+af+xc}}
 const cmpD=(a,b)=>(a.date||'').localeCompare(b.date||'')||a.id-b.id;
 let tab='plein',sub='carnet',tmpPhoto='',ed=null,F={q:'',per:'all',cat:''},B='12m',LC=null;
 const val=id=>{const e=$('#'+id);return e?e.value:''};
@@ -126,7 +131,7 @@ function fuel(){const f=db.items.filter(i=>i.t=='f').sort(cmpD),c={};let anc=nul
 function vPlein(){const {f,c}=fuel(),cs=Object.values(c),avg=cs.length?cs.reduce((a,b)=>a+b)/cs.length:0,lastI=[...f].reverse().find(i=>c[i.id]),e=E('f');
  return `<div class=card id=frm><b>${e.id?'Modifier le plein':'Nouveau plein'}</b><div class=row><div><label>Litres</label><input id=l class=big inputmode=decimal placeholder="0" value="${e.l!=null?String(e.l).replace('.',','):''}"></div><div><label>Prix payé (€)</label><input id=p class=big inputmode=decimal placeholder="0" value="${e.p!=null?String(e.p).replace('.',','):''}"></div></div>
  <label>Kilométrage (facultatif, sert à calculer la consommation)</label><input id=k inputmode=numeric placeholder="dernier connu : ${db.km}" value="${e.km||''}">
- <label>Sortie 4x4 (facultatif)</label><select id=so><option value="">— Aucune —</option>${db.items.filter(i=>i.t=='s').sort((a,b)=>cmpD(b,a)).map(s=>`<option value="${s.id}"${e.so==s.id?' selected':''}>${esc(s.name)} · ${fd(s.date)}</option>`).join('')}</select>
+ <label>Sortie 4x4 (facultatif)</label><select id=so><option value="">— Aucune —</option>${db.items.filter(i=>i.t=='s').sort((a,b)=>cmpD(b,a)).map(s=>`<option value="${s.id}"${(e.id?e.so==s.id:s.enc===true)?' selected':''}>${esc(s.name)} · ${fd(s.date)}</option>`).join('')}</select>
  <label class=ck><input type=checkbox id=fl ${e.full===false?'':'checked'}><span>Plein complet (à ras bord)</span></label><small>Décochez pour un plein partiel : la consommation reste juste.</small>
  <label>Date</label><input id=dt type=date value="${e.date||today()}">${formBtns('addF')}</div>
  <div class=card><b>Consommation moyenne :</b> ${avg?fx(avg)+' L/100 km':'—'}<small>${lastI?'Dernier calcul : '+fx(c[lastI.id])+' L/100 km':'Il faut 2 pleins complets avec le kilométrage'}</small></div>`
@@ -168,17 +173,18 @@ const DEF={'Mécanique':['Niveaux (huile, liquide de refroidissement)','Pression
 'Bivouac & cuisine':['Tente / couchage','Réchaud + gaz','Barbecue + charbon','Dutch oven','Glacière','Eau potable','Chaises + table','Sacs poubelle'],
 'Papiers & sécurité':['Papiers du véhicule + assurance','Roadbook / carte / GPS','Trousse de secours','Extincteur','Lampe frontale','Batterie externe + câbles']};
 function vSor(){const seg=`<div class=seg><button class="${sub=='carnet'?'on':''}" onclick="sub='carnet';ed=null;F={q:'',per:'all',cat:''};render()">Carnet de sorties</button><button class="${sub=='check'?'on':''}" onclick="sub='check';render()">Checklist</button></div>`;
- return seg+(sub=='check'?vChk():vCarnetS())}
+ return seg+(sub=='check'?vChk():(sel&&sortie(sel)?vSD(sortie(sel)):vCarnetS()))}
 function vCarnetS(){const e=E('s'),s=db.items.filter(i=>i.t=='s'),km=s.reduce((a,i)=>a+(i.dist||0),0),nu=s.reduce((a,i)=>a+(i.nuits||0),0),ct=s.reduce((a,i)=>a+sCost(i).tot,0);
  return `<div class=stats><div class=st><b>${s.length}</b><span>sortie${s.length>1?'s':''}</span></div><div class=st><b>${nf(km)} km</b><span>${nu} nuit${nu>1?'s':''} en bivouac</span></div><div class=st><b>${eur(ct)}</b><span>coût total des sorties</span></div><div class=st><b>${km&&ct?fx(ct/km,2)+' €':'—'}</b><span>par km parcouru</span></div></div>
-<div class=card id=frm><b>${e.id?'Modifier la sortie':'Nouvelle sortie'}</b><input id=nm placeholder="Lieu / nom de la sortie" value="${esc(e.name)}">
+${(()=>{const en=db.items.find(i=>i.t=='s'&&i.enc===true);return e.id?'':en?`<div class=card><b>🟢 Sortie en cours</b><small>${esc(en.name)}</small><button onclick="openS(${en.id},1)">Ouvrir et ajouter des dépenses</button></div>`:`<div class=card><b>Démarrer une sortie</b><input id=sn placeholder="Lieu / nom de la sortie"><button onclick=startS()>Démarrer la sortie</button><small>Vous ajoutez ensuite vos dépenses au fil de la route, et vos pleins s'y rattachent tout seuls.</small></div>`})()}
+<div class=card id=frm><b>${e.id?'Modifier la sortie':'Saisir une sortie passée'}</b><input id=nm placeholder="Lieu / nom de la sortie" value="${esc(e.name)}">
 <div class=row><div><label>Date</label><input id=dt type=date value="${e.date||today()}"></div><div><label>Distance (km)</label><input id=ds inputmode=numeric value="${e.dist||''}"></div><div><label>Nuits</label><input id=nu inputmode=numeric value="${e.nuits||''}"></div></div>
-<label>Autres frais (€) : bivouac, repas, péages…</label><input id=af inputmode=decimal placeholder="0" value="${e.af?String(e.af).replace('.',','):''}"><small>Le carburant se rattache depuis l'onglet Plein (champ « Sortie 4x4 »).</small>
+${e.af?`<label>Frais divers déjà saisis (€)</label><input id=af inputmode=decimal value="${String(e.af).replace('.',',')}">`:''}<small>Les dépenses (bivouac, repas, péages…) se saisissent dans la fiche de la sortie : touchez son nom dans la liste.</small>
 <label>Notes (météo, passages, anecdotes…)</label><textarea id=nt>${esc(e.notes)}</textarea>
 <label>Roadbook (lien ou nom du fichier)</label><input id=ur placeholder="https://… ou texte" value="${esc(e.url)}">${photoField()}${formBtns('addS')}</div>`
- +listCard('Mes sorties','s',i=>`${esc(i.name)}<small>${fd(i.date)}${i.dist?' · '+nf(i.dist)+' km':''}${i.nuits?' · '+i.nuits+' nuit'+(i.nuits>1?'s':''):''}</small>${(c=>c.n||c.af?`<small><b>${eur(c.tot)}</b> · carburant ${eur(c.fc)}${c.n?' ('+fx(c.l,0)+' L)':''}${c.af?' · autres frais '+eur(c.af):''}${i.dist&&c.tot?' · '+fx(c.tot/i.dist,2)+' €/km':''}</small>`:'')(sCost(i))}${i.notes?`<small>${esc(i.notes)}</small>`:''}${i.url?(/^https?:\/\//i.test(i.url)?`<small><a href="${esc(i.url)}" target=_blank rel=noopener>🗺 Roadbook</a></small>`:`<small>🗺 ${esc(i.url)}</small>`):''}`)}
+ +listCard('Mes sorties','s',i=>`<b class=lk onclick="openS(${i.id})">${esc(i.name)} ›</b><small>${i.enc?'🟢 en cours · ':''}${fd(i.date)}${i.dist?' · '+nf(i.dist)+' km':''}${i.nuits?' · '+i.nuits+' nuit'+(i.nuits>1?'s':''):''}</small>${(c=>c.n||c.ot?`<small><b>${eur(c.tot)}</b> · carburant ${eur(c.fc)}${c.n?' ('+fx(c.l,0)+' L)':''}${c.ot?' · autres frais '+eur(c.ot):''}${i.dist&&c.tot?' · '+fx(c.tot/i.dist,2)+' €/km':''}</small>`:'')(sCost(i))}${i.notes?`<small>${esc(i.notes)}</small>`:''}${i.url?(/^https?:\/\//i.test(i.url)?`<small><a href="${esc(i.url)}" target=_blank rel=noopener>🗺 Roadbook</a></small>`:`<small>🗺 ${esc(i.url)}</small>`):''}`)}
 function addS(){const name=val('nm').trim();if(!name)return alert('Indiquez le lieu ou le nom de la sortie.');
- const i={id:ed?ed.id:Date.now(),t:'s',name,date:val('dt')||today(),dist:parseInt(val('ds'))||0,nuits:parseInt(val('nu'))||0,af:n(val('af'))||0,notes:val('nt').trim(),url:val('ur').trim(),ph:tmpPhoto||(ed&&ed.ph)||''};tmpPhoto='';ed=null;put(i)}
+ const i={id:ed?ed.id:Date.now(),t:'s',name,date:val('dt')||today(),dist:parseInt(val('ds'))||0,nuits:parseInt(val('nu'))||0,af:$('#af')?(n(val('af'))||0):(ed&&ed.af||0),enc:!!(ed&&ed.enc),fin:(ed&&ed.fin)||'',notes:val('nt').trim(),url:val('ur').trim(),ph:tmpPhoto||(ed&&ed.ph)||''};tmpPhoto='';ed=null;put(i)}
 function vChk(){const c=db.items.filter(i=>i.t=='c'),d=c.filter(i=>i.done).length,grp=[...new Set([...CATS,...c.map(i=>i.cat)])].filter(g=>c.some(i=>i.cat==g));
  return `<div class=card><b>Checklist de départ</b>${c.length?`<small>${d} / ${c.length} prêts</small><div class=pg><i style="width:${d/c.length*100}%"></i></div>`:"<small>Aucune liste pour l'instant.</small>"}
 ${c.length?'':'<button onclick=defChk()>Charger la liste type 4x4 / bivouac</button>'}
@@ -189,14 +195,43 @@ function addC(){const name=val('cn').trim();if(!name)return alert("Indiquez l'é
 function tick(id,v){const i=db.items.find(x=>x.id==id);if(i){i.done=v;put(i)}}
 function unchk(){const a=db.items.filter(i=>i.t=='c'&&i.done);a.forEach(i=>i.done=false);putMany(a)}
 function defChk(){let k=Date.now();const a=[];CATS.forEach(g=>DEF[g].forEach(name=>a.push({id:k++,t:'c',name,cat:g,done:false})));putMany(a)}
+/* ---------- Fiche de sortie : dépenses au fil de l'eau ---------- */
+const XC=['Bivouac','Repas','Péage','Parking','Matériel','Autre'];
+function openS(id,f){tab='sor';sub='carnet';sel=id;ed=null;F={q:'',per:'all',cat:''};render();scrollTo(0,0);if(f)setTimeout(()=>{const e=$('#xa');e&&e.focus()},250)}
+function startS(){const name=val('sn').trim();if(!name)return alert('Indiquez le lieu ou le nom de la sortie.');const i={id:Date.now(),t:'s',name,date:today(),dist:0,nuits:0,af:0,notes:'',url:'',ph:'',enc:true,fin:''};sel=i.id;put(i);scrollTo(0,0)}
+function endS(id){const s=sortie(id);if(!s)return;const r=prompt('Distance parcourue pendant la sortie (km) ? Laissez vide si vous ne savez pas.',s.dist||'');if(r===null)return;const d=parseInt(r);s.enc=false;s.fin=today();if(d>0)s.dist=d;put(s)}
+function reopenS(id){const s=sortie(id);if(!s)return;s.enc=true;s.fin='';put(s)}
+function addX(){const p=n(val('xa'));if(!(p>0))return alert('Entrez le montant.');const e=ed&&ed.t=='x'?ed:null,cat=val('xk');xcat=cat;
+ const i={id:e?e.id:Date.now(),t:'x',so:sel,cat,name:val('xn').trim(),p,date:val('xdt')||today()};ed=null;put(i);navigator.vibrate&&navigator.vibrate(60)}
+function encBar(){const s=db.items.find(i=>i.t=='s'&&i.enc===true);if(!s||(tab=='sor'&&sel==s.id))return'';
+ return `<div class="card enc" onclick="openS(${s.id},1)"><span>🟢 Sortie en cours<br><b>${esc(s.name)}</b></span><span style="text-align:right"><b>${eur(sCost(s).tot)}</b><small>＋ dépense</small></span></div>`}
+function vSD(s){const c=sCost(s),xs=db.items.filter(i=>i.t=='x'&&i.so==s.id).sort((a,b)=>cmpD(b,a)),ps=db.items.filter(i=>i.t=='f'&&i.so==s.id).sort((a,b)=>cmpD(b,a)),e=ed&&ed.t=='x'&&ed.so==s.id?ed:{},by={};
+ xs.forEach(i=>by[i.cat]=(by[i.cat]||0)+i.p);
+ const kv=(a,b)=>`<div class=kv><span>${a}</span><b>${b}</b></div>`;
+ return `<button class=g onclick="sel=0;ed=null;render()">← Toutes les sorties</button>
+<div class=card><b>${esc(s.name)}</b><small>${fd(s.date)}${s.enc?' · 🟢 en cours':s.fin?' · terminée le '+fd(s.fin):''}${s.dist?' · '+nf(s.dist)+' km':''}</small>
+<div class=tot>${eur(c.tot)}</div><small>${s.enc?"coût pour l'instant":'coût total'}${s.dist&&c.tot?' · '+fx(c.tot/s.dist,2)+' €/km':''}</small>
+${kv('⛽ Carburant'+(c.n?' ('+c.n+' plein'+(c.n>1?'s':'')+', '+fx(c.l,0)+' L)':''),eur(c.fc))}${Object.keys(by).map(k=>kv(esc(k),eur(by[k]))).join('')}${c.af?kv('Frais divers',eur(c.af)):''}
+${s.enc?`<button onclick="endS(${s.id})">🏁 Terminer la sortie</button>`:`<button class=g onclick="reopenS(${s.id})">Rouvrir la sortie</button>`}
+<button class=g onclick="edit(${s.id})">Modifier la sortie (lieu, notes, photo…)</button></div>
+<div class=card id=frm><b>${e.id?'Modifier la dépense':'Ajouter une dépense'}</b>
+<label>Montant (€)</label><input id=xa class=big inputmode=decimal placeholder="0" value="${e.p?String(e.p).replace('.',','):''}">
+<select id=xk>${XC.map(k=>`<option${(e.cat||xcat)==k?' selected':''}>${k}</option>`).join('')}</select>
+<input id=xn placeholder="Détail (facultatif) : camping du lac, resto…" value="${esc(e.name)}">
+<label>Date</label><input id=xdt type=date value="${e.date||today()}">
+<button onclick=addX()>${e.id?'Enregistrer la dépense':'Ajouter la dépense'}</button>${e.id?'<button class=g onclick="ed=null;render()">Annuler</button>':''}</div>
+<div class=card><b>Dépenses</b>${xs.map(i=>row(i,x=>`<b>${eur(x.p)}</b> · ${esc(x.cat)}${x.name?' · '+esc(x.name):''}<small>${fd(x.date)}</small>`)).join('')||"<small>Aucune dépense pour l'instant.</small>"}</div>
+${ps.length?`<div class=card><b>Pleins de cette sortie</b>${ps.map(i=>kv(fd(i.date)+' · '+fx(i.l,2)+' L',eur(i.p))).join('')}</div>`:''}
+<small>Un plein saisi pendant que la sortie est en cours lui est rattaché automatiquement.</small>`}
+
 /* ---------- Bilan ---------- */
 function line(v){if(v.length<2)return '<small>Pas assez de pleins complets avec kilométrage pour tracer la courbe.</small>';
  const mn=Math.min(...v),mx=Math.max(...v),pad=(mx-mn)*.2||1,lo=mn-pad,hi=mx+pad,W=300,H=110,x=i=>10+i*(W-20)/(v.length-1),y=t=>H-8-(t-lo)/(hi-lo)*(H-16),avg=v.reduce((a,b)=>a+b)/v.length;
  return `<svg viewBox="0 0 ${W} ${H+16}" class=ln><line x1=10 x2=${W-10} y1=${y(avg).toFixed(1)} y2=${y(avg).toFixed(1)}></line><polyline points="${v.map((t,i)=>x(i).toFixed(1)+','+y(t).toFixed(1)).join(' ')}"/>${v.map((t,i)=>`<circle cx="${x(i).toFixed(1)}" cy="${y(t).toFixed(1)}" r="3"/>`).join('')}<text x="4" y="${H+13}">min ${fx(mn)}</text><text x="${W-4}" y="${H+13}" text-anchor="end">max ${fx(mx)} L/100</text></svg>`}
-function vBil(){const all=db.items.filter(i=>i.t&&'fmds'.includes(i.t)&&i.date),yrs=[...new Set(all.map(i=>i.date.slice(0,4)))].sort().reverse();
+function vBil(){const all=db.items.filter(i=>i.t&&'fmdsx'.includes(i.t)&&i.date),yrs=[...new Set(all.map(i=>i.date.slice(0,4)))].sort().reverse();
  if(B!='12m'&&B!='all'&&!yrs.includes(B))B='12m';
  const inB=d=>B=='all'||(B=='12m'?days(d)>=-365:d.slice(0,4)==B),it=all.filter(i=>inB(i.date)),S=t=>it.filter(i=>i.t==t);
- const fC=S('f').reduce((s,i)=>s+i.p,0),fL=S('f').reduce((s,i)=>s+i.l,0),mC=S('m').reduce((s,i)=>s+(i.p||0),0),dC=S('d').reduce((s,i)=>s+(i.p||0),0),sF=S('s').reduce((s,i)=>s+(i.af||0),0),fS=S('f').filter(i=>i.so&&sortie(i.so)).reduce((s,i)=>s+i.p,0),tot=fC+mC+dC+sF;
+ const fC=S('f').reduce((s,i)=>s+i.p,0),fL=S('f').reduce((s,i)=>s+i.l,0),mC=S('m').reduce((s,i)=>s+(i.p||0),0),dC=S('d').reduce((s,i)=>s+(i.p||0),0),sF=S('s').reduce((s,i)=>s+(i.af||0),0)+S('x').reduce((s,i)=>s+i.p,0),fS=S('f').filter(i=>i.so&&sortie(i.so)).reduce((s,i)=>s+i.p,0),tot=fC+mC+dC+sF;
  const ks=it.filter(i=>(i.t=='f'||i.t=='m')&&i.km>0).map(i=>i.km),span=ks.length>1?Math.max(...ks)-Math.min(...ks):0;
  const {f,c}=fuel(),cv=f.filter(i=>c[i.id]&&inB(i.date)).map(i=>c[i.id]).slice(-24),cavg=cv.length?cv.reduce((a,b)=>a+b)/cv.length:0;
  let bk=[];const ML='JFMAMJJASOND';
@@ -204,7 +239,7 @@ function vBil(){const all=db.items.filter(i=>i.t&&'fmds'.includes(i.t)&&i.date),
  else if(B=='12m'){const d=new Date(today()+'T00:00:00Z');for(let q=11;q>=0;q--){const x=new Date(Date.UTC(d.getUTCFullYear(),d.getUTCMonth()-q,1));bk.push({k:x.toISOString().slice(0,7),l:ML[x.getUTCMonth()]})}}
  else for(let m=1;m<=12;m++)bk.push({k:B+'-'+String(m).padStart(2,'0'),l:ML[m-1]});
  bk.forEach(b=>{b.f=0;b.m=0;b.d=0;b.s=0});const L=B=='all'?4:7;
- it.forEach(i=>{const b=bk.find(x=>x.k==i.date.slice(0,L));if(b)b[i.t]+=(i.t=='f'?i.p:i.t=='s'?(i.af||0):(i.p||0))});
+ it.forEach(i=>{const b=bk.find(x=>x.k==i.date.slice(0,L));if(b)b[i.t=='x'?'s':i.t]+=(i.t=='s'?(i.af||0):(i.p||0))});
  const mx=Math.max(1,...bk.map(b=>b.f+b.m+b.d+b.s)),h=v=>(v/mx*110).toFixed(1);
  const bars=bk.map(b=>`<div class=col><div class=stk><i style="height:${h(b.f)}px;background:var(--a)"></i><i style="height:${h(b.m)}px;background:var(--hi)"></i><i style="height:${h(b.d)}px;background:var(--o2)"></i><i style="height:${h(b.s)}px;background:#a9844f"></i></div><span>${b.l}</span></div>`).join('');
  const st=(a,b)=>`<div class=st><b>${a}</b><span>${b}</span></div>`;
@@ -241,15 +276,16 @@ function zip(files){const E=new TextEncoder(),parts=[],cen=[];let off=0;
   cen.push(new Uint8Array(g.buffer),nb);off+=30+nb.length+d.length});
  const cl=cen.reduce((a,x)=>a+x.length,0),e=new DataView(new ArrayBuffer(22));e.setUint32(0,0x06054b50,true);e.setUint16(8,files.length,true);e.setUint16(10,files.length,true);e.setUint32(12,cl,true);e.setUint32(16,off,true);
  return new Blob([...parts,...cen,new Uint8Array(e.buffer)],{type:'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'})}
-function xl(){const {f,c}=fuel(),sorted=t=>db.items.filter(i=>i.t==t).sort(cmpD),yrs=[...new Set(db.items.filter(i=>i.t&&'fmds'.includes(i.t)&&i.date).map(i=>i.date.slice(0,4)))].sort();
+function xl(){const {f,c}=fuel(),sorted=t=>db.items.filter(i=>i.t==t).sort(cmpD),yrs=[...new Set(db.items.filter(i=>i.t&&'fmdsx'.includes(i.t)&&i.date).map(i=>i.date.slice(0,4)))].sort();
  const sum=(y,t,k)=>db.items.filter(i=>i.t==t&&(!y||(i.date||'').slice(0,4)==y)).reduce((a,i)=>a+(i[k]||0),0);
- const res=[...yrs,null].map(y=>{const a=sum(y,'f','p'),b=sum(y,'m','p'),d=sum(y,'d','p'),s=sum(y,'s','af');return[y||'Total',sum(y,'f','l'),a,b,d,s,a+b+d+s]});
+ const res=[...yrs,null].map(y=>{const a=sum(y,'f','p'),b=sum(y,'m','p'),d=sum(y,'d','p'),s=sum(y,'s','af')+sum(y,'x','p');return[y||'Total',sum(y,'f','l'),a,b,d,s,a+b+d+s]});
  const sh=[
  ['Résumé',sheetX(['Année','Litres','Carburant (€)','Entretien (€)','Équipements & papiers (€)','Frais de sorties (€)','Total (€)'],res,['t','n','e','e','e','e','e'],[12,12,16,16,26,20,14],false)],
  ['Pleins',sheetX(['Date','Litres','Prix payé (€)','Prix au litre (€)','Kilométrage','Plein complet','Conso (L/100 km)','Sortie 4x4'],f.map(i=>[xd(i.date),i.l,i.p,i.p/i.l,i.km||null,i.full===false?'Non':'Oui',c[i.id]||null,(sortie(i.so)||{}).name||'']),['d','n','e','p','k','t','n','t'],[13,10,14,16,13,14,16,28],true)],
  ['Entretiens',sheetX(['Date','Opération','Kilométrage','Coût (€)','Prochaine échéance','Prochain km'],sorted('m').map(i=>[xd(i.date),i.name,i.km||null,i.p||null,xd(i.nd),i.nk||null]),['d','t','k','e','d','k'],[13,28,13,12,18,14],true)],
  ['Papiers',sheetX(['Date','Catégorie','Nom','Prix (€)','Expire le'],sorted('d').map(i=>[xd(i.date),i.cat,i.name,i.p||null,xd(i.exp)]),['d','t','t','e','d'],[13,14,30,12,13],true)],
- ['Sorties',sheetX(['Date','Lieu','Km parcourus','Nuits en bivouac','Litres','Carburant (€)','Autres frais (€)','Coût total (€)','Coût au km (€)','Notes','Roadbook'],sorted('s').map(i=>{const k=sCost(i);return[xd(i.date),i.name,i.dist||null,i.nuits||null,k.l||null,k.fc||null,i.af||null,k.tot||null,i.dist&&k.tot?k.tot/i.dist:null,i.notes||'',i.url||'']}),['d','t','k','k','n','e','e','e','e','t','t'],[13,28,14,16,10,14,16,15,15,40,30],true)]];
+ ['Sorties',sheetX(['Date','Lieu','Km parcourus','Nuits en bivouac','Litres','Carburant (€)','Autres frais (€)','Coût total (€)','Coût au km (€)','Notes','Roadbook'],sorted('s').map(i=>{const k=sCost(i);return[xd(i.date),i.name,i.dist||null,i.nuits||null,k.l||null,k.fc||null,k.ot||null,k.tot||null,i.dist&&k.tot?k.tot/i.dist:null,i.notes||'',i.url||'']}),['d','t','k','k','n','e','e','e','e','t','t'],[13,28,14,16,10,14,16,15,15,40,30],true)],
+ ['Dépenses',sheetX(['Date','Sortie 4x4','Catégorie','Détail','Montant (€)'],db.items.filter(i=>i.t=='x').sort(cmpD).map(i=>[xd(i.date),(sortie(i.so)||{}).name||'',i.cat,i.name||'',i.p]),['d','t','t','t','e'],[13,28,14,34,14],true)]];
  const H='<?xml version="1.0" encoding="UTF-8" standalone="yes"?>',NS='http://schemas.openxmlformats.org/',R=NS+'officeDocument/2006/relationships';
  const files=[['[Content_Types].xml',H+`<Types xmlns="${NS}package/2006/content-types"><Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/><Default Extension="xml" ContentType="application/xml"/><Override PartName="/xl/workbook.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet.main+xml"/><Override PartName="/xl/styles.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.styles+xml"/>${sh.map((s,i)=>`<Override PartName="/xl/worksheets/sheet${i+1}.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.worksheet+xml"/>`).join('')}</Types>`],
  ['_rels/.rels',H+`<Relationships xmlns="${NS}package/2006/relationships"><Relationship Id="rId1" Type="${R}/officeDocument" Target="xl/workbook.xml"/></Relationships>`],
@@ -266,10 +302,10 @@ function carnet(){const m=db.items.filter(i=>i.t=='m').sort((a,b)=>cmpD(b,a)),to
  document.body.append(o)}
 
 /* ---------- Actions communes ---------- */
-function del(id){if(confirm('Supprimer cet élément ?')){rm(id)}}
+function del(id){const i=db.items.find(x=>x.id==id),k=i&&i.t=='s'?db.items.filter(x=>x.t=='x'&&x.so==id).length:0;if(confirm(k?`Supprimer cette sortie et ses ${k} dépense${k>1?'s':''} ? (les pleins restent dans l'appli)`:'Supprimer cet élément ?'))rm(id)}
 function show(id){const i=db.items.find(x=>x.id==id),o=document.createElement('div');o.style='position:fixed;inset:0;background:#000d;display:flex;align-items:center;justify-content:center;z-index:9';o.innerHTML=`<img src="${i.ph}" style="max-width:100%;max-height:100%">`;o.onclick=()=>o.remove();document.body.append(o)}
-function edit(id){const i=db.items.find(x=>x.id==id);if(!i)return;ed=i;tmpPhoto='';tab={f:'plein',m:'ent',d:'doc',s:'sor'}[i.t]||tab;if(i.t=='s')sub='carnet';render();const e=$('#frm');e&&e.scrollIntoView({behavior:'smooth',block:'start'})}
-function go(t){tab=t;tmpPhoto='';ed=null;F={q:'',per:'all',cat:''};render();scrollTo(0,0)}
+function edit(id){const i=db.items.find(x=>x.id==id);if(!i)return;ed=i;tmpPhoto='';tab={f:'plein',m:'ent',d:'doc',s:'sor',x:'sor'}[i.t]||tab;if(i.t=='s'){sub='carnet';sel=0}if(i.t=='x'){sub='carnet';sel=i.so}render();const e=$('#frm');e&&e.scrollIntoView({behavior:'smooth',block:'start'})}
+function go(t){if(t=='sor'&&tab=='sor')sel=0;tab=t;tmpPhoto='';ed=null;F={q:'',per:'all',cat:''};render();scrollTo(0,0)}
 
 const IC={plein:`<svg viewBox="0 0 24 24"><path d="M5 20V5a2 2 0 0 1 2-2h6a2 2 0 0 1 2 2v15M4 20h12M8 7h4M15 9h2a2 2 0 0 1 2 2v5a1.5 1.5 0 0 0 3 0V9l-3-3"/></svg>`,
 ent:`<svg viewBox="0 0 24 24"><path d="M14.7 6.3a4 4 0 0 0-5 5L4 17l3 3 5.7-5.7a4 4 0 0 0 5-5l-2.5 2.5-2.2-.5-.5-2.2z"/></svg>`,
@@ -280,7 +316,7 @@ set:`<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12
 const T=[['plein',IC.plein,'Plein'],['ent',IC.ent,'Entretien'],['doc',IC.doc,'Papiers'],['sor',IC.sor,'Sorties'],['bil',IC.bil,'Bilan'],['set',IC.set,'Réglages']];
 function render(){LC=null;const V={plein:vPlein,ent:vEnt,doc:vDoc,sor:vSor,bil:vBil,set:vSet},a=alerts();
  $('#km').textContent=nf(db.km);
- $('#app').innerHTML=syncBar()+(a.length?`<div class="card al">${a.map(x=>`<div class="${x[0]?'late':'soon'}">⚠ ${x[1]}</div>`).join('')}</div>`:'')+V[tab]();
+ $('#app').innerHTML=encBar()+syncBar()+(a.length?`<div class="card al">${a.map(x=>`<div class="${x[0]?'late':'soon'}">⚠ ${x[1]}</div>`).join('')}</div>`:'')+V[tab]();
  $('#nav').innerHTML=T.map(t=>`<button class="${t[0]==tab?'on':''}" onclick="go('${t[0]}')">${t[1]}<span>${t[2]}</span></button>`).join('');
  refList()}
 const cfg={apiKey:"AIzaSyBFM-UBOw1St6uczsDYX2IKbhRTU_AHhCc",authDomain:"bigfoot-jeep-jku.firebaseapp.com",projectId:"bigfoot-jeep-jku",storageBucket:"bigfoot-jeep-jku.firebasestorage.app",messagingSenderId:"398828328349",appId:"1:398828328349:web:b6d17f012a2f0c1278cb74"};
@@ -289,7 +325,7 @@ const setKm=k=>{db.km=k;save();col&&fs.collection('meta').doc('cfg').set({km:k},
 const setVeh=v=>{db.veh=v.trim();save();col&&fs.collection('meta').doc('cfg').set({veh:db.veh},{merge:true}).catch(()=>{})};
 function put(x){db.items=db.items.filter(i=>i.id!=x.id);db.items.push(x);save();col&&col.doc(String(x.id)).set(x).catch(()=>{});render()}
 function putMany(a){a.forEach(x=>{db.items=db.items.filter(i=>i.id!=x.id);db.items.push(x);col&&col.doc(String(x.id)).set(x).catch(()=>{})});save();render()}
-function rm(id){db.items.filter(i=>i.so==id).forEach(i=>{delete i.so;col&&col.doc(String(i.id)).set(i).catch(()=>{})});db.items=db.items.filter(i=>i.id!=id);save();col&&col.doc(String(id)).delete().catch(()=>{});render()}
+function rm(id){db.items.filter(i=>i.so==id&&i.t=='f').forEach(i=>{delete i.so;col&&col.doc(String(i.id)).set(i).catch(()=>{})});db.items.filter(i=>i.so==id&&i.t=='x').forEach(i=>col&&col.doc(String(i.id)).delete().catch(()=>{}));db.items=db.items.filter(i=>i.id!=id&&!(i.t=='x'&&i.so==id));save();col&&col.doc(String(id)).delete().catch(()=>{});if(sel==id)sel=0;render()}
 function draw(){const e=document.activeElement;if(e&&e.matches('input,select,textarea'))defer=1;else render()}
 document.addEventListener('focusout',()=>{if(defer)setTimeout(()=>{const e=document.activeElement;if(!(e&&e.matches('input,select,textarea'))){defer=0;render()}},300)});
 addEventListener('online',render);addEventListener('offline',render);
