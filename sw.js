@@ -1,4 +1,4 @@
-const V='8';
+const V='9';
 const C='jeep-v'+V;
 const L=['./','index.html','manifest.json','logo.png','icon-192.png','icon-180.png','icon-512.png','icon-maskable-192.png','icon-maskable-512.png','https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js','https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js','https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js'];
 self.addEventListener('install',e=>{self.skipWaiting();e.waitUntil(caches.open(C).then(c=>Promise.all(L.map(u=>c.add(u.startsWith('http')?u:new Request(u,{cache:'reload'})).catch(()=>{})))))});
