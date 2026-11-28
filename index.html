@@ -4,7 +4,7 @@
 <link rel="manifest" href="manifest.json"><link rel="apple-touch-icon" href="icon-180.png"><link rel="icon" href="icon-192.png">
 <title>Bigfoot</title>
 <style>
-:root{--bg:#ece6d6;--c:#fbf8f0;--t:#232618;--m:#6c6a58;--a:#3b4a2f;--ab:#f4f1ea;--hi:#d97a14;--r:#b3261e;--o:#b06400;--l:#d8d0bb;--hd:#2f3a24;--sh:0 2px 0 #0001,0 6px 14px #3b2f1a14}
+:root{--bg:#ece6d6;--c:#fbf8f0;--t:#232618;--m:#6c6a58;--a:#3b4a2f;--ab:#f4f1ea;--hi:#d97a14;--o2:#6f8fa6;--r:#b3261e;--o:#b06400;--l:#d8d0bb;--hd:#2f3a24;--sh:0 2px 0 #0001,0 6px 14px #3b2f1a14}
 @media(prefers-color-scheme:dark){:root{--bg:#14160f;--c:#1f2318;--t:#efeadb;--m:#a3a08c;--a:#8fae6b;--ab:#14160f;--hi:#f0932b;--r:#ff8a80;--o:#ffb74d;--l:#343829;--hd:#1d2416;--sh:0 2px 0 #0004}}
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
 body{margin:0;font:17px/1.35 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;background:var(--bg);color:var(--t);padding-bottom:96px}
@@ -16,118 +16,291 @@ header img{position:relative;display:block;width:min(88vw,380px);height:auto;mar
 main{max-width:600px;margin:auto;padding:6px 12px}
 .card{background:var(--c);border:1px solid var(--l);border-radius:18px;padding:16px;margin:12px 0;box-shadow:var(--sh)}
 .card>b:first-child{display:block;font-size:18px;margin-bottom:6px}
-input,select,button{font:inherit;width:100%;padding:13px 14px;margin:4px 0;border-radius:12px;border:1.5px solid var(--l);background:var(--bg);color:var(--t)}
-input:focus,select:focus{outline:3px solid var(--hi);outline-offset:1px;border-color:var(--hi)}
+input,select,button,textarea{font:inherit;width:100%;padding:13px 14px;margin:4px 0;border-radius:12px;border:1.5px solid var(--l);background:var(--bg);color:var(--t)}
+textarea{min-height:84px;resize:vertical}
+input:focus,select:focus,textarea:focus{outline:3px solid var(--hi);outline-offset:1px;border-color:var(--hi)}
 .big{font-size:32px;font-weight:700;text-align:center;padding:16px 8px}
 button{background:var(--hi);color:#1d1606;border:0;font-weight:800;font-size:17px;padding:15px;box-shadow:0 3px 0 #0003;transition:transform .08s}
 button:active{transform:translateY(2px);box-shadow:none}
+button.g{background:var(--bg);color:var(--t);border:1.5px solid var(--l);box-shadow:none;font-weight:700}
 .row{display:flex;gap:10px}.row>*{flex:1;min-width:0}
 label{font-size:14px;font-weight:600;color:var(--m)}
-nav{position:fixed;bottom:0;left:0;right:0;display:flex;gap:4px;background:var(--hd);padding:8px 8px max(8px,env(safe-area-inset-bottom));border-radius:22px 22px 0 0;box-shadow:0 -4px 16px #0004;z-index:5}
-nav button{display:flex;flex-direction:column;align-items:center;gap:3px;background:none;color:#b9c3a6;border:0;border-radius:14px;margin:0;padding:8px 4px;font-size:12.5px;font-weight:600;box-shadow:none}
-nav svg{width:26px;height:26px;fill:none;stroke:currentColor;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round}
+nav{position:fixed;bottom:0;left:0;right:0;display:flex;gap:2px;background:var(--hd);padding:8px 6px max(8px,env(safe-area-inset-bottom));border-radius:22px 22px 0 0;box-shadow:0 -4px 16px #0004;z-index:5}
+nav button{flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;background:none;color:#b9c3a6;border:0;border-radius:14px;margin:0;padding:8px 0;font-size:11.5px;font-weight:600;box-shadow:none;min-width:0}
+nav svg{width:25px;height:25px;fill:none;stroke:currentColor;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round}
 nav .on{background:#ffffff1c;color:#ffb257}
-.it{display:flex;justify-content:space-between;gap:8px;padding:10px 0;border-bottom:1px solid var(--l);font-size:15.5px}
+.it{display:flex;justify-content:space-between;align-items:center;gap:8px;padding:10px 0;border-bottom:1px solid var(--l);font-size:15.5px}
 .it:last-child{border-bottom:0}
-small{color:var(--m);display:block}.it .x{width:auto;background:none;color:var(--m);padding:4px 10px;margin:0;box-shadow:none;font-weight:400}
+.im{display:flex;gap:10px;min-width:0;align-items:center}
+.ac{display:flex;flex:none;align-items:center}
+small{color:var(--m);display:block}
+.it .x{width:auto;min-width:42px;min-height:42px;background:none;color:var(--m);padding:4px 8px;margin:0;box-shadow:none;font-weight:400;font-size:18px}
 .late{color:var(--r);font-weight:600}.soon{color:var(--o);font-weight:600}.al{border-left:6px solid var(--r)}
-img.ph{width:52px;height:52px;object-fit:cover;border-radius:10px}
+img.ph{width:52px;height:52px;object-fit:cover;border-radius:10px;flex:none}
+.seg{display:flex;gap:8px;margin:12px 0}.seg button{background:var(--c);color:var(--t);border:1.5px solid var(--l);box-shadow:none;font-size:15px;padding:12px 8px;margin:0}
+.seg .on{background:var(--a);color:var(--ab);border-color:var(--a)}
+label.ck{display:flex;align-items:center;gap:12px;flex:1;min-width:0;padding:6px 0;font-size:16px;font-weight:400;color:var(--t)}
+.ck input{width:28px;height:28px;margin:0;flex:none;accent-color:var(--hi)}
+.ck.done span{text-decoration:line-through;color:var(--m)}
+.gh{margin-top:12px;font-size:13px;font-weight:800;letter-spacing:.04em;color:var(--hi);text-transform:uppercase}
+.pg{height:10px;border-radius:6px;background:var(--l);overflow:hidden;margin:6px 0 4px}.pg i{display:block;height:100%;background:var(--hi)}
+.chart{display:flex;gap:4px;align-items:flex-end;height:140px;margin-top:8px}
+.col{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;gap:4px;font-size:11px;color:var(--m);min-width:0}
+.stk{display:flex;flex-direction:column-reverse;width:100%;max-width:26px;border-radius:5px 5px 0 0;overflow:hidden}.stk i{display:block}
+.stats{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:12px 0}
+.st{background:var(--c);border:1px solid var(--l);border-radius:16px;padding:12px;box-shadow:var(--sh)}.st b{display:block;font-size:21px}.st span{font-size:13px;color:var(--m)}
+.lg{display:flex;gap:12px;flex-wrap:wrap;font-size:13px;color:var(--m);margin-top:8px}.lg i{display:inline-block;width:10px;height:10px;border-radius:3px;margin-right:5px}
+.ln{width:100%;height:auto}.ln polyline{fill:none;stroke:var(--hi);stroke-width:2.5;stroke-linejoin:round}.ln circle{fill:var(--hi)}.ln line{stroke:var(--m);stroke-dasharray:4 4;opacity:.6}.ln text{fill:var(--m);font-size:11px}
 #upd{position:fixed;left:12px;right:12px;bottom:calc(92px + env(safe-area-inset-bottom));z-index:6;display:flex;align-items:center;justify-content:space-between;gap:12px;background:var(--hi);color:#1d1606;font-weight:700;padding:10px 12px 10px 16px;border-radius:16px;box-shadow:0 6px 18px #0006}
 #upd button{width:auto;margin:0;padding:10px 14px;background:#1d1606;color:#ffd9a0;box-shadow:none}
-</style></head><body><header><img src="logo.png" alt="Jeep"><div class="odo"><span id="km">0</span><small>km</small></div></header><main id="app"></main><nav id="nav"></nav>
+#carnet{position:fixed;inset:0;z-index:20;background:#fff;color:#000;overflow:auto;padding:16px;font-size:14px}
+#carnet .bar{display:flex;gap:8px;margin-bottom:12px}#carnet .bar button{margin:0}
+#carnet h1{margin:0;font-size:24px}#carnet h2{margin:2px 0 8px;font-size:18px;font-weight:600;color:#3b4a2f}
+#carnet table{width:100%;border-collapse:collapse}#carnet th{background:#3b4a2f;color:#fff;text-align:left;padding:6px}#carnet td{padding:6px;border-bottom:1px solid #ccc;vertical-align:middle}#carnet tr.t td{font-weight:700;border-top:2px solid #3b4a2f}#carnet img{height:56px;border-radius:4px}
+@media print{body>*:not(#carnet){display:none!important}body{background:#fff;padding:0}#carnet{position:static!important;padding:0;overflow:visible}#carnet .bar{display:none}#carnet tr{break-inside:avoid}}
+</style>
+</head><body><header><img src="logo.png" alt="Jeep"><div class="odo"><span id="km">0</span><small>km</small></div></header><main id="app"></main><nav id="nav"></nav>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script><script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script><script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
 <script>
 const $=s=>document.querySelector(s);
-let db;try{db=JSON.parse(localStorage.getItem('jeep'))}catch(e){}
-db=db||{km:217414,items:[],bk:0};
-const save=()=>{try{localStorage.setItem('jeep',JSON.stringify(db))}catch(e){alert("Mémoire pleine : faites une sauvegarde (Réglages) puis supprimez d'anciennes photos.")}};
+/* ---------- Stockage local (IndexedDB : bien plus grand que localStorage) ---------- */
+const IDB={o(){return this.p||(this.p=new Promise((ok,ko)=>{const r=indexedDB.open('bigfoot',1);r.onupgradeneeded=()=>r.result.createObjectStore('kv');r.onsuccess=()=>ok(r.result);r.onerror=()=>ko(r.error)}))},
+ async get(k){const d=await this.o();return new Promise((ok,ko)=>{const q=d.transaction('kv').objectStore('kv').get(k);q.onsuccess=()=>ok(q.result);q.onerror=()=>ko(q.error)})},
+ async set(k,v){const d=await this.o();return new Promise((ok,ko)=>{const t=d.transaction('kv','readwrite');t.objectStore('kv').put(v,k);t.oncomplete=ok;t.onerror=()=>ko(t.error)})}};
+let db={km:217414,items:[],bk:0};
+const save=()=>{IDB.set('db',db).then(()=>{try{localStorage.removeItem('jeep')}catch(e){}}).catch(()=>{try{localStorage.setItem('jeep',JSON.stringify(db))}catch(e){alert("Mémoire pleine : faites une sauvegarde (Réglages) puis supprimez d'anciennes photos.")}})};
+async function load(){let v=null;try{v=await IDB.get('db')}catch(e){}
+ if(v&&Array.isArray(v.items))db=v;
+ else{try{v=JSON.parse(localStorage.getItem('jeep'))}catch(e){v=null}if(v&&Array.isArray(v.items)){db=v;save()}}
+ db.items=db.items||[];db.km=db.km||217414}
+/* ---------- Outils ---------- */
 const today=()=>new Date(Date.now()-new Date().getTimezoneOffset()*6e4).toISOString().slice(0,10);
 const fd=d=>d?new Date(d).toLocaleDateString('fr-FR',{timeZone:'UTC'}):'';
 const n=v=>parseFloat(String(v).replace(',','.'));
 const fx=(v,d=1)=>v.toFixed(d).replace('.',',');
 const eur=v=>fx(v,2)+' €';
+const nf=v=>String(v).replace(/\B(?=(\d{3})+(?!\d))/g,'\u202f');
 const days=d=>Math.round((new Date(d)-new Date(today()))/864e5);
-const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
-let tab='plein',tmpPhoto='';
+const esc=s=>String(s==null?'':s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const norm=s=>String(s==null?'':s).normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase();
+const cmpD=(a,b)=>(a.date||'').localeCompare(b.date||'')||a.id-b.id;
+let tab='plein',sub='carnet',tmpPhoto='',ed=null,F={q:'',per:'all',cat:''},B='12m',LC=null;
+const val=id=>{const e=$('#'+id);return e?e.value:''};
 
 function pick(inp){const f=inp.files[0];if(!f)return;const r=new FileReader();r.onload=()=>{const i=new Image();i.onload=()=>{const k=Math.min(1,900/Math.max(i.width,i.height)),c=document.createElement('canvas');c.width=i.width*k;c.height=i.height*k;c.getContext('2d').drawImage(i,0,0,c.width,c.height);tmpPhoto=c.toDataURL('image/jpeg',.6);$('#pv').textContent='✔ Photo prête'};i.src=r.result};r.readAsDataURL(f)}
-const photoField=()=>`<label>Photo (facture, ticket…)</label><input type=file accept="image/*" onchange="pick(this)"><small id=pv></small>`;
+const photoField=()=>`<label>Photo (facture, ticket…)</label><input type=file accept="image/*" onchange="pick(this)"><small id=pv>${ed&&ed.ph?'Photo déjà enregistrée : elle est gardée si vous n\'en choisissez pas une autre.':''}</small>`;
+const formBtns=(fn)=>`<button onclick=${fn}()>${ed?'Enregistrer les modifications':'Enregistrer'}</button>${ed?'<button class=g onclick="ed=null;tmpPhoto=\'\';render()">Annuler</button>':''}`;
+const E=t=>ed&&ed.t==t?ed:{};
 
-function alerts(){const a=[];db.items.forEach(i=>{
- if(i.t=='m'){if(i.nd){const d=days(i.nd);if(d<=30)a.push([d<0,`${esc(i.name)} : ${d<0?'dépassé depuis '+(-d)+' j':'dans '+d+' j'}`])}
-  if(i.nk){const r=i.nk-db.km;if(r<=1000)a.push([r<0,`${esc(i.name)} : ${r<0?'dépassé de '+(-r):'dans '+r} km`])}}
- if(i.t=='d'&&i.exp){const d=days(i.exp);if(d<=30)a.push([d<0,`${esc(i.name)} : ${d<0?'expiré depuis '+(-d)+' j':'expire dans '+d+' j'}`])}});
+/* ---------- Alertes (seule l'entrée la plus récente de chaque nom compte) ---------- */
+function latest(type){const m={};db.items.filter(i=>i.t==type).forEach(i=>{const k=norm(i.name),o=m[k];if(!o||cmpD(i,o)>0)m[k]=i});return Object.values(m)}
+function alerts(){const a=[];
+ latest('m').forEach(i=>{
+  if(i.nd){const d=days(i.nd);if(d<=30)a.push([d<0,`${esc(i.name)} : ${d<0?'dépassé depuis '+(-d)+' j':'dans '+d+' j'}`])}
+  if(i.nk){const r=i.nk-db.km;if(r<=1000)a.push([r<0,`${esc(i.name)} : ${r<0?'dépassé de '+nf(-r):'dans '+nf(r)} km`])}});
+ latest('d').forEach(i=>{if(i.exp){const d=days(i.exp);if(d<=30)a.push([d<0,`${esc(i.name)} : ${d<0?'expiré depuis '+(-d)+' j':'expire dans '+d+' j'}`])}});
  if(db.items.length&&(!db.bk||(Date.now()-db.bk)/864e5>30))a.push([0,'Pensez à faire une sauvegarde (Réglages)']);
  return a}
 
-function list(type,fmt){const l=db.items.filter(i=>i.t==type).sort((a,b)=>b.date.localeCompare(a.date)||b.id-a.id);
- return l.map(i=>`<div class="it"><div style="display:flex;gap:8px">${i.ph?`<img class=ph src="${i.ph}" onclick="show(${i.id})">`:''}<div>${fmt(i)}</div></div><button class=x onclick="del(${i.id})">✕</button></div>`).join('')||'<small>Rien pour l\'instant</small>'}
+/* ---------- Listes : recherche + filtres ---------- */
+function inPer(d,per){if(per=='all'||!d)return true;const x=days(d);return per=='30'?x>=-30:per=='180'?x>=-182:per=='365'?x>=-365:d.slice(0,4)==per}
+const hay=i=>norm([i.name,i.cat,i.notes,i.url,i.date,fd(i.date),i.km,i.dist,i.p,i.l].join(' '));
+function filt(type){const q=norm(F.q).trim().split(/\s+/).filter(Boolean);
+ return db.items.filter(i=>i.t==type&&(!F.cat||i.cat==F.cat)&&inPer(i.date,F.per)&&q.every(w=>hay(i).includes(w))).sort((a,b)=>cmpD(b,a))}
+function row(i,fmt){return `<div class=it><div class=im>${i.ph?`<img class=ph src="${i.ph}" onclick="show(${i.id})">`:''}<div>${fmt(i)}</div></div><div class=ac><button class=x onclick="edit(${i.id})" aria-label="Modifier">✎</button><button class=x onclick="del(${i.id})" aria-label="Supprimer">✕</button></div></div>`}
+function listCard(title,type,fmt,cats){LC={type,fmt};
+ const yrs=[...new Set(db.items.filter(i=>i.t==type&&i.date).map(i=>i.date.slice(0,4)))].sort().reverse();
+ const per=[['all','Toute période'],['30','30 derniers jours'],['180','6 derniers mois'],['365','12 derniers mois'],...yrs.map(y=>[y,'Année '+y])];
+ return `<div class=card><b>${title}</b><input id=q type=search placeholder="🔍 Rechercher…" value="${esc(F.q)}" oninput="F.q=this.value;refList()"><div class=row><select onchange="F.per=this.value;refList()">${per.map(o=>`<option value="${o[0]}"${F.per==o[0]?' selected':''}>${o[1]}</option>`).join('')}</select>${cats?`<select onchange="F.cat=this.value;refList()"><option value="">Toutes catégories</option>${cats.map(c=>`<option${F.cat==c?' selected':''}>${c}</option>`).join('')}</select>`:''}</div><small id=lsum></small><div id=lst></div></div>`}
+function refList(){if(!LC||!$('#lst'))return;const r=filt(LC.type);let s=r.length?r.length+' résultat'+(r.length>1?'s':''):'Aucun résultat';
+ if(LC.type=='s'){const k=r.reduce((a,i)=>a+(i.dist||0),0),nu=r.reduce((a,i)=>a+(i.nuits||0),0);if(r.length)s+=' · '+nf(k)+' km · '+nu+' nuit'+(nu>1?'s':'')}
+ else{const p=r.reduce((a,i)=>a+(i.p||0),0);if(p)s+=' · '+eur(p)}
+ $('#lsum').textContent=s;$('#lst').innerHTML=r.map(i=>row(i,LC.fmt)).join('')||"<small>Rien pour l'instant</small>"}
 
-function fuelStats(){const f=db.items.filter(i=>i.t=='f').sort((a,b)=>a.id-b.id);let p=null;
- f.forEach(i=>{i.c=null;if(i.km){if(p&&i.km>p.km)i.c=i.l/(i.km-p.km)*100;p=i}});return f}
-
-function vPlein(){const f=fuelStats(),cs=f.filter(i=>i.c).map(i=>i.c),avg=cs.length?cs.reduce((a,b)=>a+b)/cs.length:0,last=f.filter(i=>i.c).pop();
- return `<div class=card><div class=row><div><label>Litres</label><input id=l class=big inputmode=decimal placeholder="0"></div><div><label>Prix payé (€)</label><input id=p class=big inputmode=decimal placeholder="0"></div></div>
- <label>Kilométrage (facultatif, sert à calculer la consommation)</label><input id=k inputmode=numeric placeholder="dernier connu : ${db.km}">
- <button onclick=addF()>Enregistrer le plein</button></div>
- <div class=card><b>Consommation moyenne :</b> ${avg?fx(avg)+' L/100 km':'—'}<small>${last?'Dernier plein : '+fx(last.c)+' L/100 km':'Entrez le km sur 2 pleins pour la calculer'}</small></div>
- <div class=card><b>Derniers pleins</b>${list('f',i=>`${fd(i.date)} · ${fx(i.l,2)} L · ${eur(i.p)}<small>${fx(i.p/i.l,3)} €/L${i.km?' · '+i.km+' km':''}${i.c?' · '+fx(i.c)+' L/100':''}</small>`)}</div>`}
-function addF(){const l=n($('#l').value),p=n($('#p').value),k=parseInt($('#k').value);
+/* ---------- Pleins ---------- */
+function fuel(){const f=db.items.filter(i=>i.t=='f').sort(cmpD),c={};let anc=null,acc=0;
+ f.forEach(i=>{acc+=i.l;if(i.full===false)return;if(i.km){if(anc&&i.km>anc)c[i.id]=acc/(i.km-anc)*100;anc=i.km}else anc=null;acc=0});
+ return{f,c}}
+function vPlein(){const {f,c}=fuel(),cs=Object.values(c),avg=cs.length?cs.reduce((a,b)=>a+b)/cs.length:0,lastI=[...f].reverse().find(i=>c[i.id]),e=E('f');
+ return `<div class=card id=frm><b>${e.id?'Modifier le plein':'Nouveau plein'}</b><div class=row><div><label>Litres</label><input id=l class=big inputmode=decimal placeholder="0" value="${e.l!=null?String(e.l).replace('.',','):''}"></div><div><label>Prix payé (€)</label><input id=p class=big inputmode=decimal placeholder="0" value="${e.p!=null?String(e.p).replace('.',','):''}"></div></div>
+ <label>Kilométrage (facultatif, sert à calculer la consommation)</label><input id=k inputmode=numeric placeholder="dernier connu : ${db.km}" value="${e.km||''}">
+ <label class=ck><input type=checkbox id=fl ${e.full===false?'':'checked'}><span>Plein complet (à ras bord)</span></label><small>Décochez pour un plein partiel : la consommation reste juste.</small>
+ <label>Date</label><input id=dt type=date value="${e.date||today()}">${formBtns('addF')}</div>
+ <div class=card><b>Consommation moyenne :</b> ${avg?fx(avg)+' L/100 km':'—'}<small>${lastI?'Dernier calcul : '+fx(c[lastI.id])+' L/100 km':'Il faut 2 pleins complets avec le kilométrage'}</small></div>`
+ +listCard('Historique des pleins','f',i=>`${fd(i.date)} · ${fx(i.l,2)} L · ${eur(i.p)}${i.full===false?' · partiel':''}<small>${fx(i.p/i.l,3)} €/L${i.km?' · '+nf(i.km)+' km':''}${c[i.id]?' · '+fx(c[i.id])+' L/100':''}</small>`)}
+function addF(){const l=n(val('l')),p=n(val('p')),k=parseInt(val('k'));
  if(!(l>0&&p>0))return alert('Entrez les litres et le prix.');
- const i={id:Date.now(),t:'f',date:today(),l,p};if(k>0){i.km=k;if(k>db.km)setKm(k)}
- put(i);navigator.vibrate&&navigator.vibrate(60)}
+ const i={id:ed?ed.id:Date.now(),t:'f',date:val('dt')||today(),l,p,full:$('#fl').checked};if(k>0){i.km=k;if(k>db.km)setKm(k)}
+ ed=null;put(i);navigator.vibrate&&navigator.vibrate(60)}
 
-function vEnt(){return `<div class=card><b>Ajouter un entretien</b>
-<input id=nm list=sg placeholder="Quoi ? (Vidange, Pneus…)"><datalist id=sg><option>Vidange<option>Filtres<option>Pneus<option>Freins<option>Courroie<option>Batterie<option>Contrôle technique<option>Réparation</datalist>
-<div class=row><div><label>Date</label><input id=dt type=date value="${today()}"></div><div><label>Km</label><input id=k inputmode=numeric value="${db.km}"></div></div>
-<label>Prochaine échéance (facultatif)</label><div class=row><input id=nd type=date><input id=nk inputmode=numeric placeholder="à tel km"></div>
-<label>Coût (€)</label><input id=p inputmode=decimal>${photoField()}<button onclick=addM()>Enregistrer</button></div>
-<div class=card><b>Historique</b>${list('m',i=>`${esc(i.name)}<small>${fd(i.date)}${i.km?' · '+i.km+' km':''}${i.p?' · '+eur(i.p):''}${i.nd?' · prochain le '+fd(i.nd):''}${i.nk?' · prochain à '+i.nk+' km':''}</small>`)}</div>`}
-function addM(){const name=$('#nm').value.trim();if(!name)return alert('Indiquez ce qui a été fait.');const k=parseInt($('#k').value)||0;if(k>db.km)setKm(k);
- put({id:Date.now(),t:'m',name,date:$('#dt').value||today(),km:k,nd:$('#nd').value,nk:parseInt($('#nk').value)||0,p:n($('#p').value)||0,ph:tmpPhoto});tmpPhoto=''}
+/* ---------- Entretien ---------- */
+const IV={vidange:[10000,12],filtres:[10000,12],pneus:[40000,0],freins:[30000,0],courroie:[100000,60],batterie:[0,60],'controle technique':[0,24]};
+function sug(){if(ed||val('nd')||val('nk'))return;const v=IV[norm(val('nm')).trim()];if(!v)return;
+ const k=parseInt(val('k'))||db.km;if(v[0])$('#nk').value=k+v[0];
+ if(v[1]){const d=new Date((val('dt')||today())+'T00:00:00Z');d.setUTCMonth(d.getUTCMonth()+v[1]);$('#nd').value=d.toISOString().slice(0,10)}
+ $('#sgh').textContent='Échéance proposée : modifiez-la si besoin.'}
+function vEnt(){const e=E('m');return `<div class=card id=frm><b>${e.id?"Modifier l'entretien":'Ajouter un entretien'}</b>
+<input id=nm list=sg placeholder="Quoi ? (Vidange, Pneus…)" value="${esc(e.name)}" onchange=sug()><datalist id=sg><option>Vidange<option>Filtres<option>Pneus<option>Freins<option>Courroie<option>Batterie<option>Contrôle technique<option>Réparation</datalist>
+<div class=row><div><label>Date</label><input id=dt type=date value="${e.date||today()}"></div><div><label>Km</label><input id=k inputmode=numeric value="${e.km||db.km}"></div></div>
+<label>Prochaine échéance (facultatif)</label><div class=row><input id=nd type=date value="${e.nd||''}"><input id=nk inputmode=numeric placeholder="à tel km" value="${e.nk||''}"></div><small id=sgh></small>
+<label>Coût (€)</label><input id=p inputmode=decimal value="${e.p?String(e.p).replace('.',','):''}">${photoField()}${formBtns('addM')}</div>`
+ +listCard('Historique','m',i=>`${esc(i.name)}<small>${fd(i.date)}${i.km?' · '+nf(i.km)+' km':''}${i.p?' · '+eur(i.p):''}${i.nd?' · prochain le '+fd(i.nd):''}${i.nk?' · prochain à '+nf(i.nk)+' km':''}</small>`)}
+function addM(){const name=val('nm').trim();if(!name)return alert('Indiquez ce qui a été fait.');const k=parseInt(val('k'))||0;if(k>db.km)setKm(k);
+ const i={id:ed?ed.id:Date.now(),t:'m',name,date:val('dt')||today(),km:k,nd:val('nd'),nk:parseInt(val('nk'))||0,p:n(val('p'))||0,ph:tmpPhoto||(ed&&ed.ph)||''};tmpPhoto='';ed=null;put(i)}
 
-function vDoc(){return `<div class=card><b>Ajouter un papier, un équipement ou une facture</b>
-<select id=cat><option value="Papier">Papier (assurance, carte grise…)</option><option value="Équipement">Équipement acheté</option><option value="Facture">Facture / ticket</option></select>
-<input id=nm placeholder="Nom (ex : Assurance, treuil…)"><div class=row><div><label>Date</label><input id=dt type=date value="${today()}"></div><div><label>Expire le</label><input id=ex type=date></div></div>
-<label>Prix (€)</label><input id=p inputmode=decimal>${photoField()}<button onclick=addD()>Enregistrer</button></div>
-<div class=card><b>Mes documents</b>${list('d',i=>`${esc(i.name)}<small>${esc(i.cat)} · ${fd(i.date)}${i.p?' · '+eur(i.p):''}${i.exp?' · expire le '+fd(i.exp):''}</small>`)}</div>`}
-function addD(){const name=$('#nm').value.trim();if(!name)return alert('Indiquez un nom.');
- put({id:Date.now(),t:'d',cat:$('#cat').value,name,date:$('#dt').value||today(),exp:$('#ex').value,p:n($('#p').value)||0,ph:tmpPhoto});tmpPhoto=''}
+/* ---------- Papiers ---------- */
+const DC=['Papier','Équipement','Facture'];
+function vDoc(){const e=E('d');return `<div class=card id=frm><b>${e.id?'Modifier le document':'Ajouter un papier, un équipement ou une facture'}</b>
+<select id=cat><option value="Papier"${e.cat=='Papier'?' selected':''}>Papier (assurance, carte grise…)</option><option value="Équipement"${e.cat=='Équipement'?' selected':''}>Équipement acheté</option><option value="Facture"${e.cat=='Facture'?' selected':''}>Facture / ticket</option></select>
+<input id=nm placeholder="Nom (ex : Assurance, treuil…)" value="${esc(e.name)}"><div class=row><div><label>Date</label><input id=dt type=date value="${e.date||today()}"></div><div><label>Expire le</label><input id=ex type=date value="${e.exp||''}"></div></div>
+<label>Prix (€)</label><input id=p inputmode=decimal value="${e.p?String(e.p).replace('.',','):''}">${photoField()}${formBtns('addD')}</div>`
+ +listCard('Mes documents','d',i=>`${esc(i.name)}<small>${esc(i.cat)} · ${fd(i.date)}${i.p?' · '+eur(i.p):''}${i.exp?' · expire le '+fd(i.exp):''}</small>`,DC)}
+function addD(){const name=val('nm').trim();if(!name)return alert('Indiquez un nom.');
+ const i={id:ed?ed.id:Date.now(),t:'d',cat:val('cat'),name,date:val('dt')||today(),exp:val('ex'),p:n(val('p'))||0,ph:tmpPhoto||(ed&&ed.ph)||''};tmpPhoto='';ed=null;put(i)}
 
-function vSet(){return syncCard()+`<div class=card><b>Version de l'application</b><small id=ver>Version ${appV||'…'}</small><button onclick=chk()>Rechercher une mise à jour</button><small>${upMsg}</small></div><div class=card><b>Kilométrage actuel</b><input id=k inputmode=numeric value="${db.km}"><button onclick="setKm(parseInt($('#k').value)||db.km);render()">Mettre à jour</button></div>
+/* ---------- Sorties : carnet + checklist ---------- */
+const CATS=['Mécanique','Récupération','Bivouac & cuisine','Papiers & sécurité'];
+const DEF={'Mécanique':['Niveaux (huile, liquide de refroidissement)','Pression des pneus','Plein de carburant','Jerrican de secours','Roue de secours + cric'],
+'Récupération':['Treuil + télécommande','Sangle, manilles et gants','Plaques de désensablage','Compresseur + manomètre','Pelle'],
+'Bivouac & cuisine':['Tente / couchage','Réchaud + gaz','Barbecue + charbon','Dutch oven','Glacière','Eau potable','Chaises + table','Sacs poubelle'],
+'Papiers & sécurité':['Papiers du véhicule + assurance','Roadbook / carte / GPS','Trousse de secours','Extincteur','Lampe frontale','Batterie externe + câbles']};
+function vSor(){const seg=`<div class=seg><button class="${sub=='carnet'?'on':''}" onclick="sub='carnet';ed=null;F={q:'',per:'all',cat:''};render()">Carnet de sorties</button><button class="${sub=='check'?'on':''}" onclick="sub='check';render()">Checklist</button></div>`;
+ return seg+(sub=='check'?vChk():vCarnetS())}
+function vCarnetS(){const e=E('s'),s=db.items.filter(i=>i.t=='s'),km=s.reduce((a,i)=>a+(i.dist||0),0),nu=s.reduce((a,i)=>a+(i.nuits||0),0);
+ return `<div class=stats><div class=st><b>${s.length}</b><span>sortie${s.length>1?'s':''}</span></div><div class=st><b>${nf(km)} km</b><span>${nu} nuit${nu>1?'s':''} en bivouac</span></div></div>
+<div class=card id=frm><b>${e.id?'Modifier la sortie':'Nouvelle sortie'}</b><input id=nm placeholder="Lieu / nom de la sortie" value="${esc(e.name)}">
+<div class=row><div><label>Date</label><input id=dt type=date value="${e.date||today()}"></div><div><label>Distance (km)</label><input id=ds inputmode=numeric value="${e.dist||''}"></div><div><label>Nuits</label><input id=nu inputmode=numeric value="${e.nuits||''}"></div></div>
+<label>Notes (météo, passages, anecdotes…)</label><textarea id=nt>${esc(e.notes)}</textarea>
+<label>Roadbook (lien ou nom du fichier)</label><input id=ur placeholder="https://… ou texte" value="${esc(e.url)}">${photoField()}${formBtns('addS')}</div>`
+ +listCard('Mes sorties','s',i=>`${esc(i.name)}<small>${fd(i.date)}${i.dist?' · '+nf(i.dist)+' km':''}${i.nuits?' · '+i.nuits+' nuit'+(i.nuits>1?'s':''):''}</small>${i.notes?`<small>${esc(i.notes)}</small>`:''}${i.url?(/^https?:\/\//i.test(i.url)?`<small><a href="${esc(i.url)}" target=_blank rel=noopener>🗺 Roadbook</a></small>`:`<small>🗺 ${esc(i.url)}</small>`):''}`)}
+function addS(){const name=val('nm').trim();if(!name)return alert('Indiquez le lieu ou le nom de la sortie.');
+ const i={id:ed?ed.id:Date.now(),t:'s',name,date:val('dt')||today(),dist:parseInt(val('ds'))||0,nuits:parseInt(val('nu'))||0,notes:val('nt').trim(),url:val('ur').trim(),ph:tmpPhoto||(ed&&ed.ph)||''};tmpPhoto='';ed=null;put(i)}
+function vChk(){const c=db.items.filter(i=>i.t=='c'),d=c.filter(i=>i.done).length,grp=[...new Set([...CATS,...c.map(i=>i.cat)])].filter(g=>c.some(i=>i.cat==g));
+ return `<div class=card><b>Checklist de départ</b>${c.length?`<small>${d} / ${c.length} prêts</small><div class=pg><i style="width:${d/c.length*100}%"></i></div>`:"<small>Aucune liste pour l'instant.</small>"}
+${c.length?'':'<button onclick=defChk()>Charger la liste type 4x4 / bivouac</button>'}
+${grp.map(g=>`<div class=gh>${esc(g)}</div>`+c.filter(i=>i.cat==g).sort((a,b)=>a.id-b.id).map(i=>`<div class=it><label class="ck${i.done?' done':''}"><input type=checkbox ${i.done?'checked':''} onchange="tick(${i.id},this.checked)"><span>${esc(i.name)}</span></label><button class=x onclick="del(${i.id})">✕</button></div>`).join('')).join('')}
+${d?'<button class=g onclick=unchk()>Tout décocher (sortie terminée)</button>':''}</div>
+<div class=card><b>Ajouter à la liste</b><input id=cn placeholder="Ex : corde, filtre à eau…"><select id=cc>${CATS.map(x=>`<option>${x}</option>`).join('')}</select><button onclick=addC()>Ajouter</button></div>`}
+function addC(){const name=val('cn').trim();if(!name)return alert("Indiquez l'élément à ajouter.");put({id:Date.now(),t:'c',name,cat:val('cc'),done:false})}
+function tick(id,v){const i=db.items.find(x=>x.id==id);if(i){i.done=v;put(i)}}
+function unchk(){const a=db.items.filter(i=>i.t=='c'&&i.done);a.forEach(i=>i.done=false);putMany(a)}
+function defChk(){let k=Date.now();const a=[];CATS.forEach(g=>DEF[g].forEach(name=>a.push({id:k++,t:'c',name,cat:g,done:false})));putMany(a)}
+/* ---------- Bilan ---------- */
+function line(v){if(v.length<2)return '<small>Pas assez de pleins complets avec kilométrage pour tracer la courbe.</small>';
+ const mn=Math.min(...v),mx=Math.max(...v),pad=(mx-mn)*.2||1,lo=mn-pad,hi=mx+pad,W=300,H=110,x=i=>10+i*(W-20)/(v.length-1),y=t=>H-8-(t-lo)/(hi-lo)*(H-16),avg=v.reduce((a,b)=>a+b)/v.length;
+ return `<svg viewBox="0 0 ${W} ${H+16}" class=ln><line x1=10 x2=${W-10} y1=${y(avg).toFixed(1)} y2=${y(avg).toFixed(1)}></line><polyline points="${v.map((t,i)=>x(i).toFixed(1)+','+y(t).toFixed(1)).join(' ')}"/>${v.map((t,i)=>`<circle cx="${x(i).toFixed(1)}" cy="${y(t).toFixed(1)}" r="3"/>`).join('')}<text x="4" y="${H+13}">min ${fx(mn)}</text><text x="${W-4}" y="${H+13}" text-anchor="end">max ${fx(mx)} L/100</text></svg>`}
+function vBil(){const all=db.items.filter(i=>i.t&&'fmd'.includes(i.t)&&i.date),yrs=[...new Set(all.map(i=>i.date.slice(0,4)))].sort().reverse();
+ if(B!='12m'&&B!='all'&&!yrs.includes(B))B='12m';
+ const inB=d=>B=='all'||(B=='12m'?days(d)>=-365:d.slice(0,4)==B),it=all.filter(i=>inB(i.date)),S=t=>it.filter(i=>i.t==t);
+ const fC=S('f').reduce((s,i)=>s+i.p,0),fL=S('f').reduce((s,i)=>s+i.l,0),mC=S('m').reduce((s,i)=>s+(i.p||0),0),dC=S('d').reduce((s,i)=>s+(i.p||0),0),tot=fC+mC+dC;
+ const ks=it.filter(i=>(i.t=='f'||i.t=='m')&&i.km>0).map(i=>i.km),span=ks.length>1?Math.max(...ks)-Math.min(...ks):0;
+ const {f,c}=fuel(),cv=f.filter(i=>c[i.id]&&inB(i.date)).map(i=>c[i.id]).slice(-24),cavg=cv.length?cv.reduce((a,b)=>a+b)/cv.length:0;
+ let bk=[];const ML='JFMAMJJASOND';
+ if(B=='all')bk=yrs.slice().reverse().map(y=>({k:y,l:y.slice(2)}));
+ else if(B=='12m'){const d=new Date(today()+'T00:00:00Z');for(let q=11;q>=0;q--){const x=new Date(Date.UTC(d.getUTCFullYear(),d.getUTCMonth()-q,1));bk.push({k:x.toISOString().slice(0,7),l:ML[x.getUTCMonth()]})}}
+ else for(let m=1;m<=12;m++)bk.push({k:B+'-'+String(m).padStart(2,'0'),l:ML[m-1]});
+ bk.forEach(b=>{b.f=0;b.m=0;b.d=0});const L=B=='all'?4:7;
+ it.forEach(i=>{const b=bk.find(x=>x.k==i.date.slice(0,L));if(b)b[i.t]+=(i.t=='f'?i.p:(i.p||0))});
+ const mx=Math.max(1,...bk.map(b=>b.f+b.m+b.d)),h=v=>(v/mx*110).toFixed(1);
+ const bars=bk.map(b=>`<div class=col><div class=stk><i style="height:${h(b.f)}px;background:var(--a)"></i><i style="height:${h(b.m)}px;background:var(--hi)"></i><i style="height:${h(b.d)}px;background:var(--o2)"></i></div><span>${b.l}</span></div>`).join('');
+ const st=(a,b)=>`<div class=st><b>${a}</b><span>${b}</span></div>`;
+ return `<div class=card><b>Bilan</b><select onchange="B=this.value;render()"><option value="12m"${B=='12m'?' selected':''}>12 derniers mois</option>${yrs.map(y=>`<option value="${y}"${B==y?' selected':''}>Année ${y}</option>`).join('')}<option value="all"${B=='all'?' selected':''}>Depuis le début</option></select></div>
+ <div class=stats>${st(eur(tot),'dépenses totales')}${st(eur(fC),'carburant')}${st(eur(mC),'entretien')}${st(eur(dC),'équipements & papiers')}
+ ${st(span>=100?fx((fC+mC)/span,2)+' €':'—','par km (carburant + entretien) '+(span>=100?'· sur '+nf(span)+' km':''))}${st(fL?fx(fC/fL,3)+' €':'—','prix moyen du litre')}${st(cavg?fx(cavg)+' L/100':'—','consommation moyenne')}${st(fL?fx(fL,0)+' L':'—','carburant acheté')}</div>
+ <div class=card><b>Dépenses ${B=='all'?'par année':'par mois'}</b><div class=chart>${bars}</div><div class=lg><span><i style="background:var(--a)"></i>Carburant</span><span><i style="background:var(--hi)"></i>Entretien</span><span><i style="background:var(--o2)"></i>Équipements & papiers</span></div></div>
+ <div class=card><b>Consommation (L/100 km)</b>${line(cv)}<small>Trait pointillé = moyenne de la période.</small></div>`+expCard()}
+
+/* ---------- Réglages, exports ---------- */
+const expCard=()=>`<div class=card><b>Exporter</b><button onclick=xl()>Export Excel (.xlsx)</button><button class=g onclick=carnet()>Carnet d'entretien (PDF)</button><small>Excel : pleins, entretiens, papiers, sorties et résumé par année. Les photos restent dans l'appli.</small></div>`;
+function vSet(){return syncCard()+`<div class=card><b>Kilométrage actuel</b><input id=k inputmode=numeric value="${db.km}"><label>Nom du véhicule (sur le carnet PDF)</label><input id=vh value="${esc(db.veh||'Jeep Wrangler JKU')}"><button onclick="setKm(parseInt($('#k').value)||db.km);setVeh($('#vh').value);render()">Mettre à jour</button></div>`+expCard()+`
 <div class=card><b>Sauvegarde</b><small>Dernière : ${db.bk?fd(new Date(db.bk).toISOString().slice(0,10)):'jamais'}</small>
-<button onclick=exp()>Sauvegarder mes données</button><label>Restaurer depuis un fichier de sauvegarde</label><input type=file accept=".json" onchange=imp(this)></div>`}
+<button onclick=exp()>Sauvegarder mes données</button><label>Restaurer depuis un fichier de sauvegarde</label><input type=file accept=".json" onchange=imp(this)></div>
+<div class=card><b>Version de l'application</b><small id=ver>Version ${appV||'…'}</small><button onclick=chk()>Rechercher une mise à jour</button><small>${upMsg}</small></div>`}
 function exp(){db.bk=Date.now();save();const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([JSON.stringify(db)],{type:'application/json'}));a.download='jeep-sauvegarde-'+today()+'.json';a.click();render()}
 function imp(inp){const f=inp.files[0];if(!f)return;const r=new FileReader();r.onload=()=>{try{const d=JSON.parse(r.result);if(!Array.isArray(d.items))throw 0;
- if(confirm('Ajouter les données de cette sauvegarde ?')){db=d;save();if(col){d.items.forEach(i=>col.doc(String(i.id)).set(i));setKm(d.km||db.km)}render()}}catch(e){alert('Fichier non valide.')}};r.readAsText(f)}
+ if(confirm('Ajouter les données de cette sauvegarde ?')){d.items.forEach(i=>{db.items=db.items.filter(x=>x.id!=i.id);db.items.push(i);col&&col.doc(String(i.id)).set(i).catch(()=>{})});if(d.km>db.km)setKm(d.km);if(d.veh&&!db.veh)setVeh(d.veh);save();render()}}catch(e){alert('Fichier non valide.')}};r.readAsText(f)}
 
+/* Export Excel : fichier .xlsx fabriqué sur place, sans bibliothèque */
+const colL=i=>String.fromCharCode(65+i);
+const xd=d=>{if(!d)return null;const [y,m,dd]=d.split('-').map(Number);return Date.UTC(y,m-1,dd)/864e5+25569};
+const XE=s=>String(s).replace(/[&<>"\u0000-\u0008\u000b\u000c\u000e-\u001f]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]||''));
+function sheetX(head,rows,types,w,flt){const st={d:2,e:3,n:4,k:5,p:6},cell=(v,r,c,s)=>(v==null||v===''||(typeof v=='number'&&!isFinite(v)))?'':typeof v=='number'?`<c r="${colL(c)}${r}" s="${s}"><v>${v}</v></c>`:`<c r="${colL(c)}${r}"${s?` s="${s}"`:''} t="inlineStr"><is><t xml:space="preserve">${XE(v)}</t></is></c>`;
+ let x=`<?xml version="1.0" encoding="UTF-8" standalone="yes"?><worksheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main"><sheetViews><sheetView workbookViewId="0"><pane ySplit="1" topLeftCell="A2" activePane="bottomLeft" state="frozen"/></sheetView></sheetViews><cols>${w.map((v,i)=>`<col min="${i+1}" max="${i+1}" width="${v}" customWidth="1"/>`).join('')}</cols><sheetData><row r="1">${head.map((h,c)=>cell(h,1,c,1)).join('')}</row>`;
+ rows.forEach((r,i)=>{x+=`<row r="${i+2}">${r.map((v,c)=>cell(v,i+2,c,st[types[c]]||0)).join('')}</row>`});
+ return x+`</sheetData>${flt&&rows.length?`<autoFilter ref="A1:${colL(head.length-1)}${rows.length+1}"/>`:''}</worksheet>`}
+function crc(u){let t=crc.t;if(!t){t=crc.t=[];for(let k=0;k<256;k++){let c=k;for(let j=0;j<8;j++)c=c&1?0xEDB88320^(c>>>1):c>>>1;t[k]=c>>>0}}let r=-1;for(let i=0;i<u.length;i++)r=t[(r^u[i])&255]^(r>>>8);return(r^-1)>>>0}
+function zip(files){const E=new TextEncoder(),parts=[],cen=[];let off=0;
+ files.forEach(([nm,s])=>{const nb=E.encode(nm),d=E.encode(s),c=crc(d),h=new DataView(new ArrayBuffer(30));
+  h.setUint32(0,0x04034b50,true);h.setUint16(4,20,true);h.setUint16(6,0x0800,true);h.setUint16(12,0x21,true);h.setUint32(14,c,true);h.setUint32(18,d.length,true);h.setUint32(22,d.length,true);h.setUint16(26,nb.length,true);
+  parts.push(new Uint8Array(h.buffer),nb,d);
+  const g=new DataView(new ArrayBuffer(46));g.setUint32(0,0x02014b50,true);g.setUint16(4,20,true);g.setUint16(6,20,true);g.setUint16(8,0x0800,true);g.setUint16(14,0x21,true);g.setUint32(16,c,true);g.setUint32(20,d.length,true);g.setUint32(24,d.length,true);g.setUint16(28,nb.length,true);g.setUint32(42,off,true);
+  cen.push(new Uint8Array(g.buffer),nb);off+=30+nb.length+d.length});
+ const cl=cen.reduce((a,x)=>a+x.length,0),e=new DataView(new ArrayBuffer(22));e.setUint32(0,0x06054b50,true);e.setUint16(8,files.length,true);e.setUint16(10,files.length,true);e.setUint32(12,cl,true);e.setUint32(16,off,true);
+ return new Blob([...parts,...cen,new Uint8Array(e.buffer)],{type:'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'})}
+function xl(){const {f,c}=fuel(),sorted=t=>db.items.filter(i=>i.t==t).sort(cmpD),yrs=[...new Set(db.items.filter(i=>i.t&&'fmd'.includes(i.t)&&i.date).map(i=>i.date.slice(0,4)))].sort();
+ const sum=(y,t,k)=>db.items.filter(i=>i.t==t&&(!y||(i.date||'').slice(0,4)==y)).reduce((a,i)=>a+(i[k]||0),0);
+ const res=[...yrs,null].map(y=>{const a=sum(y,'f','p'),b=sum(y,'m','p'),d=sum(y,'d','p');return[y||'Total',sum(y,'f','l'),a,b,d,a+b+d]});
+ const sh=[
+ ['Résumé',sheetX(['Année','Litres','Carburant (€)','Entretien (€)','Équipements & papiers (€)','Total (€)'],res,['t','n','e','e','e','e'],[12,12,16,16,26,14],false)],
+ ['Pleins',sheetX(['Date','Litres','Prix payé (€)','Prix au litre (€)','Kilométrage','Plein complet','Conso (L/100 km)'],f.map(i=>[xd(i.date),i.l,i.p,i.p/i.l,i.km||null,i.full===false?'Non':'Oui',c[i.id]||null]),['d','n','e','p','k','t','n'],[13,10,14,16,13,14,16],true)],
+ ['Entretiens',sheetX(['Date','Opération','Kilométrage','Coût (€)','Prochaine échéance','Prochain km'],sorted('m').map(i=>[xd(i.date),i.name,i.km||null,i.p||null,xd(i.nd),i.nk||null]),['d','t','k','e','d','k'],[13,28,13,12,18,14],true)],
+ ['Papiers',sheetX(['Date','Catégorie','Nom','Prix (€)','Expire le'],sorted('d').map(i=>[xd(i.date),i.cat,i.name,i.p||null,xd(i.exp)]),['d','t','t','e','d'],[13,14,30,12,13],true)],
+ ['Sorties',sheetX(['Date','Lieu','Km parcourus','Nuits en bivouac','Notes','Roadbook'],sorted('s').map(i=>[xd(i.date),i.name,i.dist||null,i.nuits||null,i.notes||'',i.url||'']),['d','t','k','k','t','t'],[13,28,14,16,40,30],true)]];
+ const H='<?xml version="1.0" encoding="UTF-8" standalone="yes"?>',NS='http://schemas.openxmlformats.org/',R=NS+'officeDocument/2006/relationships';
+ const files=[['[Content_Types].xml',H+`<Types xmlns="${NS}package/2006/content-types"><Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/><Default Extension="xml" ContentType="application/xml"/><Override PartName="/xl/workbook.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet.main+xml"/><Override PartName="/xl/styles.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.styles+xml"/>${sh.map((s,i)=>`<Override PartName="/xl/worksheets/sheet${i+1}.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.worksheet+xml"/>`).join('')}</Types>`],
+ ['_rels/.rels',H+`<Relationships xmlns="${NS}package/2006/relationships"><Relationship Id="rId1" Type="${R}/officeDocument" Target="xl/workbook.xml"/></Relationships>`],
+ ['xl/workbook.xml',H+`<workbook xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main" xmlns:r="${R}"><sheets>${sh.map((s,i)=>`<sheet name="${s[0]}" sheetId="${i+1}" r:id="rId${i+1}"/>`).join('')}</sheets></workbook>`],
+ ['xl/_rels/workbook.xml.rels',H+`<Relationships xmlns="${NS}package/2006/relationships">${sh.map((s,i)=>`<Relationship Id="rId${i+1}" Type="${R}/worksheet" Target="worksheets/sheet${i+1}.xml"/>`).join('')}<Relationship Id="rId${sh.length+1}" Type="${R}/styles" Target="styles.xml"/></Relationships>`],
+ ['xl/styles.xml',H+`<styleSheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main"><numFmts count="3"><numFmt numFmtId="164" formatCode="#,##0.00&quot; €&quot;"/><numFmt numFmtId="165" formatCode="0.0"/><numFmt numFmtId="166" formatCode="0.000&quot; €&quot;"/></numFmts><fonts count="2"><font><sz val="11"/><name val="Calibri"/></font><font><b/><sz val="11"/><color rgb="FFFFFFFF"/><name val="Calibri"/></font></fonts><fills count="3"><fill><patternFill patternType="none"/></fill><fill><patternFill patternType="gray125"/></fill><fill><patternFill patternType="solid"><fgColor rgb="FF3B4A2F"/><bgColor indexed="64"/></patternFill></fill></fills><borders count="1"><border><left/><right/><top/><bottom/><diagonal/></border></borders><cellStyleXfs count="1"><xf numFmtId="0" fontId="0" fillId="0" borderId="0"/></cellStyleXfs><cellXfs count="7"><xf numFmtId="0" fontId="0" fillId="0" borderId="0" xfId="0"/><xf numFmtId="0" fontId="1" fillId="2" borderId="0" xfId="0" applyFont="1" applyFill="1"/><xf numFmtId="14" fontId="0" fillId="0" borderId="0" xfId="0" applyNumberFormat="1"/><xf numFmtId="164" fontId="0" fillId="0" borderId="0" xfId="0" applyNumberFormat="1"/><xf numFmtId="165" fontId="0" fillId="0" borderId="0" xfId="0" applyNumberFormat="1"/><xf numFmtId="3" fontId="0" fillId="0" borderId="0" xfId="0" applyNumberFormat="1"/><xf numFmtId="166" fontId="0" fillId="0" borderId="0" xfId="0" applyNumberFormat="1"/></cellXfs><cellStyles count="1"><cellStyle name="Normal" xfId="0" builtinId="0"/></cellStyles></styleSheet>`],
+ ...sh.map((s,i)=>[`xl/worksheets/sheet${i+1}.xml`,s[1]])];
+ const a=document.createElement('a');a.href=URL.createObjectURL(zip(files));a.download='bigfoot-export-'+today()+'.xlsx';document.body.append(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(a.href),4e3)}
+
+/* Carnet d'entretien imprimable (PDF via « Imprimer ») */
+function carnet(){const m=db.items.filter(i=>i.t=='m').sort((a,b)=>cmpD(b,a)),tot=m.reduce((s,i)=>s+(i.p||0),0),o=document.createElement('div');o.id='carnet';
+ o.innerHTML=`<div class=bar><button onclick="window.print()">Imprimer / Enregistrer en PDF</button><button class=g onclick="document.getElementById('carnet').remove()">Fermer</button></div><h1>Carnet d'entretien</h1><h2>${esc(db.veh||'Jeep Wrangler JKU')}</h2><p>Édité le ${fd(today())} · Kilométrage actuel : <b>${nf(db.km)} km</b></p>
+ <table><tr><th>Date</th><th>Km</th><th>Opération</th><th>Coût</th><th>Prochaine échéance</th><th>Facture</th></tr>${m.map(i=>`<tr><td>${fd(i.date)}</td><td>${i.km?nf(i.km):''}</td><td>${esc(i.name)}</td><td>${i.p?eur(i.p):''}</td><td>${i.nd?fd(i.nd):''}${i.nd&&i.nk?' / ':''}${i.nk?nf(i.nk)+' km':''}</td><td>${i.ph?`<img src="${i.ph}">`:''}</td></tr>`).join('')||'<tr><td colspan=6>Aucun entretien enregistré.</td></tr>'}<tr class=t><td colspan=3>Total des entretiens</td><td>${eur(tot)}</td><td colspan=2></td></tr></table>`;
+ document.body.append(o)}
+
+/* ---------- Actions communes ---------- */
 function del(id){if(confirm('Supprimer cet élément ?')){rm(id)}}
 function show(id){const i=db.items.find(x=>x.id==id),o=document.createElement('div');o.style='position:fixed;inset:0;background:#000d;display:flex;align-items:center;justify-content:center;z-index:9';o.innerHTML=`<img src="${i.ph}" style="max-width:100%;max-height:100%">`;o.onclick=()=>o.remove();document.body.append(o)}
+function edit(id){const i=db.items.find(x=>x.id==id);if(!i)return;ed=i;tmpPhoto='';tab={f:'plein',m:'ent',d:'doc',s:'sor'}[i.t]||tab;if(i.t=='s')sub='carnet';render();const e=$('#frm');e&&e.scrollIntoView({behavior:'smooth',block:'start'})}
+function go(t){tab=t;tmpPhoto='';ed=null;F={q:'',per:'all',cat:''};render();scrollTo(0,0)}
 
-const IC={plein:`<svg viewBox="0 0 24 24"><path d="M5 20V5a2 2 0 0 1 2-2h6a2 2 0 0 1 2 2v15M4 20h12M8 7h4M15 9h2a2 2 0 0 1 2 2v5a1.5 1.5 0 0 0 3 0V9l-3-3"/></svg>`,ent:`<svg viewBox="0 0 24 24"><path d="M14.7 6.3a4 4 0 0 0-5 5L4 17l3 3 5.7-5.7a4 4 0 0 0 5-5l-2.5 2.5-2.2-.5-.5-2.2z"/></svg>`,doc:`<svg viewBox="0 0 24 24"><path d="M6 3h8l4 4v14H6zM14 3v4h4M9 12h6M9 16h6"/></svg>`,set:`<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3M4.9 4.9l2.1 2.1M17 17l2.1 2.1M19.1 4.9L17 7M7 17l-2.1 2.1"/></svg>`};
-const T=[['plein',IC.plein,'Plein'],['ent',IC.ent,'Entretien'],['doc',IC.doc,'Papiers'],['set',IC.set,'Réglages']];
-function render(){const V={plein:vPlein,ent:vEnt,doc:vDoc,set:vSet},a=alerts();
- $('#km').textContent=String(db.km).replace(/\B(?=(\d{3})+(?!\d))/g,'\u202f');
+const IC={plein:`<svg viewBox="0 0 24 24"><path d="M5 20V5a2 2 0 0 1 2-2h6a2 2 0 0 1 2 2v15M4 20h12M8 7h4M15 9h2a2 2 0 0 1 2 2v5a1.5 1.5 0 0 0 3 0V9l-3-3"/></svg>`,
+ent:`<svg viewBox="0 0 24 24"><path d="M14.7 6.3a4 4 0 0 0-5 5L4 17l3 3 5.7-5.7a4 4 0 0 0 5-5l-2.5 2.5-2.2-.5-.5-2.2z"/></svg>`,
+doc:`<svg viewBox="0 0 24 24"><path d="M6 3h8l4 4v14H6zM14 3v4h4M9 12h6M9 16h6"/></svg>`,
+sor:`<svg viewBox="0 0 24 24"><path d="M12 21s-6-5.5-6-10a6 6 0 0 1 12 0c0 4.5-6 10-6 10z"/><circle cx="12" cy="11" r="2.2"/></svg>`,
+bil:`<svg viewBox="0 0 24 24"><path d="M4 20V11M10 20V4M16 20v-6M2 20h20"/></svg>`,
+set:`<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3M4.9 4.9l2.1 2.1M17 17l2.1 2.1M19.1 4.9L17 7M7 17l-2.1 2.1"/></svg>`};
+const T=[['plein',IC.plein,'Plein'],['ent',IC.ent,'Entretien'],['doc',IC.doc,'Papiers'],['sor',IC.sor,'Sorties'],['bil',IC.bil,'Bilan'],['set',IC.set,'Réglages']];
+function render(){LC=null;const V={plein:vPlein,ent:vEnt,doc:vDoc,sor:vSor,bil:vBil,set:vSet},a=alerts();
+ $('#km').textContent=nf(db.km);
  $('#app').innerHTML=syncBar()+(a.length?`<div class="card al">${a.map(x=>`<div class="${x[0]?'late':'soon'}">⚠ ${x[1]}</div>`).join('')}</div>`:'')+V[tab]();
- $('#nav').innerHTML=T.map(t=>`<button class="${t[0]==tab?'on':''}" onclick="tab='${t[0]}';tmpPhoto='';render()">${t[1]}<span>${t[2]}</span></button>`).join('')}
+ $('#nav').innerHTML=T.map(t=>`<button class="${t[0]==tab?'on':''}" onclick="go('${t[0]}')">${t[1]}<span>${t[2]}</span></button>`).join('');
+ refList()}
 const cfg={apiKey:"AIzaSyBFM-UBOw1St6uczsDYX2IKbhRTU_AHhCc",authDomain:"bigfoot-jeep-jku.firebaseapp.com",projectId:"bigfoot-jeep-jku",storageBucket:"bigfoot-jeep-jku.firebasestorage.app",messagingSenderId:"398828328349",appId:"1:398828328349:web:b6d17f012a2f0c1278cb74"};
 let fs,col,user,st='',defer=0,unsub;
-const setKm=k=>{db.km=k;save();col&&fs.collection('meta').doc('cfg').set({km:k}).catch(()=>{})};
+const setKm=k=>{db.km=k;save();col&&fs.collection('meta').doc('cfg').set({km:k},{merge:true}).catch(()=>{})};
+const setVeh=v=>{db.veh=v.trim();save();col&&fs.collection('meta').doc('cfg').set({veh:db.veh},{merge:true}).catch(()=>{})};
 function put(x){db.items=db.items.filter(i=>i.id!=x.id);db.items.push(x);save();col&&col.doc(String(x.id)).set(x).catch(()=>{});render()}
+function putMany(a){a.forEach(x=>{db.items=db.items.filter(i=>i.id!=x.id);db.items.push(x);col&&col.doc(String(x.id)).set(x).catch(()=>{})});save();render()}
 function rm(id){db.items=db.items.filter(i=>i.id!=id);save();col&&col.doc(String(id)).delete().catch(()=>{});render()}
-function draw(){const e=document.activeElement;if(e&&e.matches('input,select'))defer=1;else render()}
-document.addEventListener('focusout',()=>{if(defer)setTimeout(()=>{const e=document.activeElement;if(!(e&&e.matches('input,select'))){defer=0;render()}},300)});
+function draw(){const e=document.activeElement;if(e&&e.matches('input,select,textarea'))defer=1;else render()}
+document.addEventListener('focusout',()=>{if(defer)setTimeout(()=>{const e=document.activeElement;if(!(e&&e.matches('input,select,textarea'))){defer=0;render()}},300)});
 addEventListener('online',render);addEventListener('offline',render);
 const syncBar=()=>user?`<small style="text-align:center">☁ ${navigator.onLine?(st||'…'):'Hors ligne'}</small>`:`<div class="card al"><b>Non synchronisé.</b> Connectez-vous dans Réglages.</div>`;
 function syncCard(){return user?`<div class=card><b>Synchronisation</b><small>Connecté : ${esc(user.email)}</small><button onclick="firebase.auth().signOut()">Se déconnecter</button></div>`:`<div class=card><b>Connexion (synchronisation)</b><input id=em type=email placeholder="Adresse e-mail" autocomplete=username><input id=pw type=password placeholder="Mot de passe" autocomplete=current-password><button onclick=login()>Se connecter</button></div>`}
-function login(){firebase.auth().signInWithEmailAndPassword($('#em').value.trim(),$('#pw').value).then(()=>{tab='plein';render()}).catch(e=>alert(e.code=='auth/network-request-failed'?'Pas de réseau : la première connexion en demande.':'Adresse ou mot de passe incorrect.'))}
-try{firebase.initializeApp(cfg);fs=firebase.firestore();fs.enablePersistence({synchronizeTabs:true}).catch(()=>{});
+function login(){firebase.auth().signInWithEmailAndPassword(val('em').trim(),val('pw')).then(()=>{tab='plein';render()}).catch(e=>alert(e.code=='auth/network-request-failed'?'Pas de réseau : la première connexion en demande.':'Adresse ou mot de passe incorrect.'))}
+function fbInit(){try{firebase.initializeApp(cfg);fs=firebase.firestore();fs.enablePersistence({synchronizeTabs:true}).catch(()=>{});
 firebase.auth().onAuthStateChanged(u=>{user=u;unsub&&unsub();unsub=0;col=null;
  if(u){col=fs.collection('items');
-  if(!localStorage.getItem('jeepMig')){db.items.forEach(i=>col.doc(String(i.id)).set(i).catch(()=>{}));if(db.km!=217414)fs.collection('meta').doc('cfg').set({km:db.km}).catch(()=>{});localStorage.setItem('jeepMig','1')}
+  if(!localStorage.getItem('jeepMig')){db.items.forEach(i=>col.doc(String(i.id)).set(i).catch(()=>{}));if(db.km!=217414)fs.collection('meta').doc('cfg').set({km:db.km},{merge:true}).catch(()=>{});localStorage.setItem('jeepMig','1')}
   unsub=col.onSnapshot(q=>{db.items=q.docs.map(d=>d.data());save();st=q.metadata.hasPendingWrites?"Envoi en attente":"Synchronisé";draw()},()=>{});
-  fs.collection('meta').doc('cfg').onSnapshot(d=>{if(d.exists&&d.data().km){db.km=d.data().km;save();draw()}},()=>{})}
- render()})}catch(e){}
+  fs.collection('meta').doc('cfg').onSnapshot(d=>{if(d.exists){const m=d.data();if(m.km)db.km=m.km;if(m.veh!=null)db.veh=m.veh;save();draw()}},()=>{})}
+ render()})}catch(e){}}
+
+/* ---------- Mises à jour de l'appli ---------- */
 let appV='',upMsg='',reg;
 function showUp(){if($('#upd'))return;const d=document.createElement('div');d.id='upd';d.innerHTML='Nouvelle version prête <button onclick="location.reload()">Mettre à jour</button>';document.body.append(d)}
 function askV(){const c=navigator.serviceWorker.controller;if(!c)return;const ch=new MessageChannel();ch.port1.onmessage=e=>{appV=e.data;const v=$('#ver');if(v)v.textContent='Version '+appV};c.postMessage('v',[ch.port2])}
@@ -137,9 +310,10 @@ async function chk(){if(!reg){upMsg="Mises à jour indisponibles ici.";return re
  const w=reg.installing||reg.waiting;
  if(w&&w.state!='activated'){upMsg='Téléchargement de la nouvelle version…';render();await new Promise(ok=>{const t=setTimeout(ok,8000);w.addEventListener('statechange',()=>{if(w.state=='activated'){clearTimeout(t);ok()}})})}
  upMsg=$('#upd')?'Nouvelle version prête : appuyez sur « Mettre à jour ».':'Vous avez déjà la dernière version.';render()}
-render();
-if('serviceWorker'in navigator){const had=navigator.serviceWorker.controller;
- navigator.serviceWorker.register('sw.js',{updateViaCache:'none'}).then(r=>{reg=r;askV();r.update().catch(()=>{});setInterval(()=>r.update().catch(()=>{}),18e5)}).catch(()=>{});
- navigator.serviceWorker.addEventListener('controllerchange',()=>{had?showUp():askV()});
- document.addEventListener('visibilitychange',()=>{if(!document.hidden&&reg)reg.update().catch(()=>{})})}
+async function start(){await load();fbInit();render();
+ if('serviceWorker'in navigator){const had=navigator.serviceWorker.controller;
+  navigator.serviceWorker.register('sw.js',{updateViaCache:'none'}).then(r=>{reg=r;askV();r.update().catch(()=>{});setInterval(()=>r.update().catch(()=>{}),18e5)}).catch(()=>{});
+  navigator.serviceWorker.addEventListener('controllerchange',()=>{had?showUp():askV()});
+  document.addEventListener('visibilitychange',()=>{if(!document.hidden&&reg)reg.update().catch(()=>{})})}}
+start();
 </script></body></html>
